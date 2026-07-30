@@ -20,7 +20,6 @@
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemActiveIndicatorColor="@color/accent_alpha" />
+        app:menu="@menu/bottom_nav_menu" />
 
 </RelativeLayout>
