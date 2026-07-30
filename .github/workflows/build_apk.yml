@@ -1,18 +1,22 @@
-name: Build Code-ioPRO APK
+name: Code-ioPRO — Stabil Release APK
 
 on:
   push:
     branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
     inputs:
-      release_type:
-        description: 'Release type'
+      build_type:
+        description: 'Build türü'
         required: false
-        default: 'debug'
+        default: 'release'
         type: choice
-        options: [debug, release]
+        options: [release, debug]
+
+env:
+  APP_MODULE: app
+  APP_NAME: Code-ioPRO
 
 jobs:
   build:
@@ -22,20 +26,30 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout
+      # ── 1. Checkout ───────────────────────────────────────────────────
+      - name: ⬇️ Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up JDK 17
+      # ── 2. Tarih değişkeni ────────────────────────────────────────────
+      - name: 📅 Tarih değişkeni
+        run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      # ── 3. JDK 17 ─────────────────────────────────────────────────────
+      - name: ☕ JDK 17 kur
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+      # ── 4. Gradlew izni ───────────────────────────────────────────────
+      - name: 🔐 gradlew izni
+        run: chmod +x ./gradlew
 
-      - name: Cache Gradle
+      # ── 5. Gradle cache ───────────────────────────────────────────────
+      - name: 📦 Gradle cache
         uses: actions/cache@v4
         with:
           path: |
@@ -44,67 +58,94 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Generate release keystore
+      # ── 6. İmzalama Anahtarı Hazırla ─────────────────────────────────
+      # GitHub Secret olarak SIGNING_KEY (base64 .jks) eklenmişse kullanılır.
+      # Yoksa CI için otomatik test keystore üretilir.
+      - name: 🔑 İmzalama keystore hazırla
         run: |
-          keytool -genkeypair \
-            -alias codeiopro \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -keystore keystore.jks \
-            -storepass codeiopro123 \
-            -keypass codeiopro123 \
-            -dname "CN=Code-ioPRO, OU=Dev, O=Code-ioPRO, L=Istanbul, ST=Istanbul, C=TR"
-          echo "signing.storeFile=$(pwd)/keystore.jks" >> local.properties
-          echo "signing.storePassword=codeiopro123"   >> local.properties
-          echo "signing.keyAlias=codeiopro"            >> local.properties
-          echo "signing.keyPassword=codeiopro123"      >> local.properties
+          if [ -n "${{ secrets.SIGNING_KEY }}" ]; then
+            echo "✅ GitHub Secrets'tan keystore kullanılıyor"
+            echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > /tmp/release.jks
+            echo "SIGNING_KEY_STORE_PATH=/tmp/release.jks"           >> $GITHUB_ENV
+            echo "SIGNING_STORE_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}" >> $GITHUB_ENV
+            echo "SIGNING_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}"  >> $GITHUB_ENV
+            echo "SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}" >> $GITHUB_ENV
+          else
+            echo "⚠️  SIGNING_KEY secret bulunamadı — CI test keystore oluşturuluyor"
+            keytool -genkey -v \
+              -keystore /tmp/release.jks \
+              -alias release \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass codeio2024 -keypass codeio2024 \
+              -dname "CN=Code-ioPRO CI, OU=Dev, O=CodeioPRO, L=TR, S=TR, C=TR" \
+              2>/dev/null
+            echo "SIGNING_KEY_STORE_PATH=/tmp/release.jks" >> $GITHUB_ENV
+            echo "SIGNING_STORE_PASSWORD=codeio2024"        >> $GITHUB_ENV
+            echo "SIGNING_KEY_ALIAS=release"                >> $GITHUB_ENV
+            echo "SIGNING_KEY_PASSWORD=codeio2024"          >> $GITHUB_ENV
+          fi
 
-      - name: Build Debug APK
+      # ── 7. Release APK derle ──────────────────────────────────────────
+      - name: 🏗️ Release APK derle
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        env:
+          SIGNING_KEY_STORE_PATH: ${{ env.SIGNING_KEY_STORE_PATH }}
+          SIGNING_STORE_PASSWORD: ${{ env.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS:      ${{ env.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD:   ${{ env.SIGNING_KEY_PASSWORD }}
+
+      # ── 8. Debug APK derle (yedek) ────────────────────────────────────
+      - name: 🔧 Debug APK derle
         run: ./gradlew assembleDebug --no-daemon
+        if: always()
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease --no-daemon
-
-      - name: Rename APKs
+      # ── 9. APK bilgisi ────────────────────────────────────────────────
+      - name: 📋 APK bilgisi
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk \
-             app/build/outputs/apk/debug/Code-ioPRO-debug-${{ github.run_number }}.apk
-          cp app/build/outputs/apk/release/app-release.apk \
-             app/build/outputs/apk/release/Code-ioPRO-release-${{ github.run_number }}.apk
+          echo "=== Derlenen APK'lar ==="
+          find app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
 
-      - name: Upload Debug APK
+      # ── 10. Release APK yükle ─────────────────────────────────────────
+      - name: 📤 Release APK yükle (artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: Code-ioPRO-debug-${{ github.run_number }}
-          path: app/build/outputs/apk/debug/Code-ioPRO-debug-${{ github.run_number }}.apk
-          retention-days: 30
-
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Code-ioPRO-release-${{ github.run_number }}
-          path: app/build/outputs/apk/release/Code-ioPRO-release-${{ github.run_number }}.apk
+          name: ${{ env.DATE }}-${{ env.APP_NAME }}-release-APK
+          path: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           retention-days: 90
 
-      - name: Create GitHub Release
+      # ── 11. Debug APK yükle ───────────────────────────────────────────
+      - name: 📤 Debug APK yükle (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.DATE }}-${{ env.APP_NAME }}-debug-APK
+          path: ${{ env.APP_MODULE }}/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+      # ── 12. GitHub Release oluştur (sadece main/master push) ──────────
+      - name: 🚀 GitHub Release oluştur
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: "Code-ioPRO Build #${{ github.run_number }}"
+          name: "Code-ioPRO v1.1.0 — Build #${{ github.run_number }}"
           body: |
-            ## Code-ioPRO Build #${{ github.run_number }}
-            
-            ### İndirme
-            - **Release APK** (önerilen): `Code-ioPRO-release-${{ github.run_number }}.apk`
-            - **Debug APK**: `Code-ioPRO-debug-${{ github.run_number }}.apk`
-            
-            ### Kurulum
-            Ayarlar → Güvenlik → Bilinmeyen Kaynaklara İzin Ver → APK'yı yükle
-          files: |
-            app/build/outputs/apk/debug/Code-ioPRO-debug-${{ github.run_number }}.apk
-            app/build/outputs/apk/release/Code-ioPRO-release-${{ github.run_number }}.apk
+            ## 🚀 Code-ioPRO Stabil Release
+
+            **Derleme:** #${{ github.run_number }}
+            **Tarih:** ${{ env.DATE }}
+            **Branch:** ${{ github.ref_name }}
+
+            ### ✅ Bu build'de düzeltilen kritik hatalar:
+            - `NoClassDefFoundError: ReportFragment$ActivityInitializationListener` çöküşü düzeltildi
+            - `biometric:1.2.0-alpha05` → stabil `1.1.0` sürümüne geçildi (lifecycle çakışması giderildi)
+            - `lifecycle-runtime:2.8.7` explicit tanımlanarak versiyon çakışması engellendi
+            - ProGuard kuralları kapsamlı biçimde yeniden yazıldı (WebView JS bridge, Room, Biometric, Lifecycle)
+            - Release build `shrinkResources` aktif edildi
+            - İmzalama CI/CD ortamına entegre edildi
+
+            ### 📱 Kurulum:
+            APK'yı cihaza indirip **Bilinmeyen kaynaklara izin ver** seçeneğiyle kurun.
+          files: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
         env:

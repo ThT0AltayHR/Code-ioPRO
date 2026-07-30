@@ -18,7 +18,7 @@ import org.json.JSONObject;
 public class UpdateChecker {
     private static final String TAG = "UpdateChecker";
     private static final String API_URL = "https://api.github.com/repos/%s/%s/releases/latest";
-    private static final String CURRENT_VERSION = "1.0.0";
+    private static final String CURRENT_VERSION = "1.1.0";
 
     public static void checkForUpdates(Context ctx, String owner, String repo) {
         SharedPreferences prefs = ctx.getSharedPreferences("codeio_prefs", Context.MODE_PRIVATE);

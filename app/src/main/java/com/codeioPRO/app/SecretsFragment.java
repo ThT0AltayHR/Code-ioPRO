@@ -193,7 +193,7 @@ public class SecretsFragment extends Fragment {
                 obj.put("has_openai_key", secretsManager.hasSecret("openai_api_key"));
                 obj.put("has_claude_key", secretsManager.hasSecret("claude_api_key"));
                 obj.put("has_gemini_key", secretsManager.hasSecret("gemini_api_key"));
-                obj.put("app_version", "1.0.0");
+                obj.put("app_version", "1.1.0");
                 return obj.toString();
             } catch (Exception e) { return "{}"; }
         }

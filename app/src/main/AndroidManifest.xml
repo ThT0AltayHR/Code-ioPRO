@@ -52,7 +52,7 @@
         <!-- ── Ask / Share Intent Activity ──────────────────────────────── -->
         <activity
             android:name="com.codeioPRO.app.AskActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:theme="@style/Theme.CodeioPRO.Translucent"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

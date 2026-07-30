@@ -66,7 +66,7 @@ public class SettingsBridge {
             o.put("has_gemini_key",        secrets.hasSecret("gemini_api_key"));
             o.put("has_github_token",      secrets.hasSecret("github_token"));
             o.put("has_groq_key",          secrets.hasSecret("groq_api_key"));
-            o.put("app_version",           "1.0.0");
+            o.put("app_version",           "1.1.0");
             return o.toString();
         } catch (Exception e) { return "{}"; }
     }
@@ -152,7 +152,7 @@ public class SettingsBridge {
             out.put("has_gemini_key", secrets.hasSecret("gemini_api_key"));
             out.put("has_github_token", secrets.hasSecret("github_token"));
             out.put("has_groq_key", secrets.hasSecret("groq_api_key"));
-            out.put("app_version", "1.0.0");
+            out.put("app_version", "1.1.0");
             return out.toString();
         } catch (Exception e) { return getSettings(); }
     }
