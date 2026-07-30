@@ -76,35 +76,48 @@
         android:pathData="M71,62 C67,61 64,63 65,67"/>
 
     <!-- Circuit nodes emanating from brain -->
-    <!-- Top node -->
-    <circle android:fillColor="#00D4FF" android:cx="54" android:cy="22" android:r="2.5"/>
+    <!-- Top node: circle cx=54 cy=22 r=2.5 -->
+    <path android:fillColor="#00D4FF"
+        android:pathData="M51.5,22 A2.5,2.5 0 1,0 56.5,22 A2.5,2.5 0 1,0 51.5,22 Z"/>
     <path android:strokeColor="#00D4FF" android:strokeWidth="1.5" android:pathData="M54,28 L54,22"/>
 
-    <!-- Left nodes -->
-    <circle android:fillColor="#00D4FF" android:cx="22" android:cy="48" android:r="2.5"/>
+    <!-- Left nodes: circle cx=22 cy=48 r=2.5 -->
+    <path android:fillColor="#00D4FF"
+        android:pathData="M19.5,48 A2.5,2.5 0 1,0 24.5,48 A2.5,2.5 0 1,0 19.5,48 Z"/>
     <path android:strokeColor="#00D4FF" android:strokeWidth="1.5" android:pathData="M28,48 L22,48"/>
-    <circle android:fillColor="#00D4FF" android:cx="24" android:cy="60" android:r="2"/>
+    <!-- circle cx=24 cy=60 r=2 -->
+    <path android:fillColor="#00D4FF"
+        android:pathData="M22,60 A2,2 0 1,0 26,60 A2,2 0 1,0 22,60 Z"/>
     <path android:strokeColor="#00D4FF" android:strokeWidth="1.2" android:pathData="M30,62 L24,60"/>
 
-    <!-- Right nodes -->
-    <circle android:fillColor="#00D4FF" android:cx="86" android:cy="48" android:r="2.5"/>
+    <!-- Right nodes: circle cx=86 cy=48 r=2.5 -->
+    <path android:fillColor="#00D4FF"
+        android:pathData="M83.5,48 A2.5,2.5 0 1,0 88.5,48 A2.5,2.5 0 1,0 83.5,48 Z"/>
     <path android:strokeColor="#00D4FF" android:strokeWidth="1.5" android:pathData="M80,48 L86,48"/>
-    <circle android:fillColor="#00D4FF" android:cx="84" android:cy="60" android:r="2"/>
+    <!-- circle cx=84 cy=60 r=2 -->
+    <path android:fillColor="#00D4FF"
+        android:pathData="M82,60 A2,2 0 1,0 86,60 A2,2 0 1,0 82,60 Z"/>
     <path android:strokeColor="#00D4FF" android:strokeWidth="1.2" android:pathData="M78,62 L84,60"/>
 
-    <!-- Bottom nodes -->
-    <circle android:fillColor="#00FF88" android:cx="44" android:cy="88" android:r="2.5"/>
+    <!-- Bottom nodes: circle cx=44 cy=88 r=2.5 -->
+    <path android:fillColor="#00FF88"
+        android:pathData="M41.5,88 A2.5,2.5 0 1,0 46.5,88 A2.5,2.5 0 1,0 41.5,88 Z"/>
     <path android:strokeColor="#00FF88" android:strokeWidth="1.5" android:pathData="M44,82 L44,88"/>
-    <circle android:fillColor="#00FF88" android:cx="64" android:cy="88" android:r="2.5"/>
+    <!-- circle cx=64 cy=88 r=2.5 -->
+    <path android:fillColor="#00FF88"
+        android:pathData="M61.5,88 A2.5,2.5 0 1,0 66.5,88 A2.5,2.5 0 1,0 61.5,88 Z"/>
     <path android:strokeColor="#00FF88" android:strokeWidth="1.5" android:pathData="M64,82 L64,88"/>
 
     <!-- Horizontal circuit connectors -->
     <path android:strokeColor="#00D4FF" android:strokeWidth="1" android:pathData="M22,48 L22,60 L24,60"/>
     <path android:strokeColor="#00D4FF" android:strokeWidth="1" android:pathData="M86,48 L86,60 L84,60"/>
 
-    <!-- Corner diagonal nodes -->
-    <circle android:fillColor="#7C4DFF" android:cx="30" android:cy="30" android:r="2"/>
-    <circle android:fillColor="#7C4DFF" android:cx="78" android:cy="30" android:r="2"/>
+    <!-- Corner diagonal nodes: circle cx=30 cy=30 r=2 -->
+    <path android:fillColor="#7C4DFF"
+        android:pathData="M28,30 A2,2 0 1,0 32,30 A2,2 0 1,0 28,30 Z"/>
+    <!-- circle cx=78 cy=30 r=2 -->
+    <path android:fillColor="#7C4DFF"
+        android:pathData="M76,30 A2,2 0 1,0 80,30 A2,2 0 1,0 76,30 Z"/>
     <path android:strokeColor="#7C4DFF" android:strokeWidth="1" android:pathData="M30,30 L36,38"/>
     <path android:strokeColor="#7C4DFF" android:strokeWidth="1" android:pathData="M78,30 L72,38"/>
 
