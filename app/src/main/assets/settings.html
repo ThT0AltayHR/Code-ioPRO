@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Code-ioPRO Ayarlar</title>
+<style>
+:root{
+  --bg:#0E1525;--card:#131D2E;--card2:#1A2540;
+  --accent:#00D4FF;--green:#00FF88;--red:#FF4B4B;--yellow:#FFD740;
+  --txt:#fff;--txt2:#8892A4;--border:#1E2A40;--input-bg:#0b1120;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-ser;font-size:14px;padding-bottom:24px;}
+.header{
+  position:sticky;top:0;z-index:10;
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;background:var(--card);
+  border-bottom:1px solid var(--border);
+}
+.header-icon{font-size:22px;}
+.header-title{flex:1;font-size:17px;font-weight:700;color:var(--accent);}
+.close-btn{
+  background:transparent;border:1px solid var(--border);
+  color:var(--txt2);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;
+}
+.close-btn:active{background:var(--border);}
+.section{padding:16px 16px 0;}
+.section-title{
+  font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--accent);margin-bottom:10px;
+}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.setting-row{
+  display:flex;align-items:center;padding:13px 14px;
+  border-bottom:1px solid var(--border);gap:12px;
+}
+.setting-row:last-child{border-bottom:none;}
+.setting-info{flex:1;min-width:0;}
+.setting-label{font-size:13px;font-weight:600;color:var(--txt);}
+.setting-desc{font-size:11px;color:var(--txt2);margin-top:2px;line-height:1.4;}
+/* Toggle switch */
+.switch{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:#243048;border-radius:24px;transition:.2s;}
+.slider:before{position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
+input:checked+.slider{background:var(--accent);}
+input:checked+.slider:before{transform:translateX(20px);}
+/* Input fields */
+.input-group{padding:12px 14px;border-bottom:1px solid var(--border);}
+.input-group:last-child{border-bottom:none;}
+.input-label{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:6px;display:block;}
+input[type=text],input[type=number],input[type=password],input[type=url],select,textarea{
+  width:100%;background:var(--input-bg);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;color:var(--txt);font-size:13px;
+  outline:none;-webkit-appearance:none;font-family:monospace;
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+select{color:var(--txt);}
+select option{background:var(--card);}
+textarea{height:70px;resize:none;}
+/* Range slider */
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:4px;
+  background:var(--border);border-radius:4px;outline:none;border:none;padding:0;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--accent);cursor:pointer;box-shadow:0 0 6px rgba(0,212,255,.4);
+}
+.range-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);}
+.range-row:last-child{border-bottom:none;}
+.range-val{min-width:40px;text-align:right;color:var(--accent);font-family:monospace;font-size:13px;font-weight:700;}
+/* Buttons */
+.btn-row{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;}
+.btn-row:last-child{border-bottom:none;}
+.btn-action{
+  background:var(--accent);color:#000;border:none;
+  border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;
+  cursor:pointer;width:100%;
+}
+.btn-action.red{background:var(--red);color:#fff;}
+.btn-action.secondary{background:var(--card2);color:var(--txt);border:1px solid var(--border);}
+.btn-action:active{opacity:.7;}
+/* Save bar */
+.save-bar{
+  position:sticky;bottom:0;padding:12px 16px;
+  background:var(--bg);border-top:1px solid var(--border);
+  display:flex;gap:10px;
+}
+.btn-save{
+  flex:1;background:var(--accent);color:#000;border:none;
+  border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;
+}
+.btn-save:active{opacity:.8;}
+.version-badge{text-align:center;color:var(--txt2);font-size:11px;padding:10px;font-family:monospace;}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="header-icon">⚙️</span>
+  <span class="header-title">Code-ioPRO Ayarlar</span>
+  <button class="close-btn" onclick="closeSettings()">✕ Kapat</button>
+</div>
+
+<!-- === AI & API === -->
+<div class="section">
+  <div class="section-title">🤖 AI & API</div>
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">AI Sağlayıcı URL</label>
+      <input type="url" id="custom_api_url" placeholder="https://duck.ai">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Aktif Model</label>
+      <select id="active_model">
+        <option value="gpt-4o">GPT-4o</option>
+        <option value="gpt-4o-mini">GPT-4o Mini</option>
+        <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+        <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+        <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+        <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+        <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Groq)</option>
+        <option value="llama-3.1-8b-instant">Llama 3.1 8B (Groq)</option>
+        <option value="deepseek-reasoner">DeepSeek R1</option>
+        <option value="deepseek-chat">DeepSeek V3</option>
+        <option value="mistral-large-latest">Mistral Large</option>
+        <option value="custom">Özel Model</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Sistem Prompt'u</label>
+      <textarea id="system_prompt" placeholder="Merhaba! Ben Code-ioPRO, Muhammed tarafından geliştirilmiş bir yapay zeka asistanıyım…"></textarea>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Paylaşılan Metin Soneki</label>
+      <input type="text" id="ask_suffix" placeholder="(isteğe bağlı ek metin)">
+    </div>
+  </div>
+</div>
+
+<!-- === GÖRÜNÜM === -->
+<div class="section">
+  <div class="section-title">🎨 Görünüm & Animasyon</div>
+  <div class="card">
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Yıldız Arka Planı</div><div class="setting-desc">Chat ekranında hareketli yıldız efekti</div></div>
+      <label class="switch"><input type="checkbox" id="star_bg_enabled"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Karanlık Mod</div><div class="setting-desc">Uygulama renk teması</div></div>
+      <label class="switch"><input type="checkbox" id="dark_mode"><span class="slider"></span></label>
+    </div>
+    <div class="range-row">
+      <div class="setting-info"><div class="setting-label">Metin Zoom</div><div class="setting-desc">Web içeriği metin boyutu</div></div>
+      <input type="range" id="text_zoom" min="50" max="200" step="5" oninput="updateRange('text_zoom','text_zoom_val','%')">
+      <span class="range-val" id="text_zoom_val">100%</span>
+    </div>
+  </div>
+</div>
+
+<!-- === CHAT ÖZELLİKLERİ === -->
+<div class="section">
+  <div class="section-title">💬 Chat Özellikleri</div>
+  <div class="card">
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Kopyala Butonu</div><div class="setting-desc">Kod bloklarına ⎘ Kopyala butonu ekle</div></div>
+      <label class="switch"><input type="checkbox" id="copy_btn_enabled"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">İndir Butonu</div><div class="setting-desc">Kod bloklarına ⬇ İndir butonu ekle</div></div>
+      <label class="switch"><input type="checkbox" id="download_btn_enabled"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Çalıştır Butonu</div><div class="setting-desc">Desteklenen dillerde ▶ Çalıştır butonu</div></div>
+      <label class="switch"><input type="checkbox" id="run_btn_enabled"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Kota Göstergesi</div><div class="setting-desc">Kalan token/mesaj sayısını göster</div></div>
+      <label class="switch"><input type="checkbox" id="show_quota"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Context Sıkıştırma</div><div class="setting-desc">Eski mesajları otomatik özetle</div></div>
+      <label class="switch"><input type="checkbox" id="compress_context"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Son Sohbete Devam</div><div class="setting-desc">Uygulamayı açınca son sohbet</div></div>
+      <label class="switch"><input type="checkbox" id="continue_last_chat"><span class="slider"></span></label>
+    </div>
+    <div class="range-row">
+      <div class="setting-info"><div class="setting-label">Max Context Token</div><div class="setting-desc">Sohbet hafızası sınırı</div></div>
+      <input type="range" id="context_max_tokens" min="512" max="32768" step="512" oninput="updateRange('context_max_tokens','ctx_val','')">
+      <span class="range-val" id="ctx_val">4096</span>
+    </div>
+    <div class="range-row">
+      <div class="setting-info"><div class="setting-label">Max Geçmiş Mesaj</div><div class="setting-desc">Hafızada tutulan mesaj sayısı</div></div>
+      <input type="range" id="max_history_msgs" min="10" max="200" step="10" oninput="updateRange('max_history_msgs','hist_val','')">
+      <span class="range-val" id="hist_val">50</span>
+    </div>
+    <div class="range-row">
+      <div class="setting-info"><div class="setting-label">İstek Zaman Aşımı</div><div class="setting-desc">API isteği için bekleme süresi</div></div>
+      <input type="range" id="request_timeout_sec" min="10" max="300" step="10" oninput="updateRange('request_timeout_sec','to_val','s')">
+      <span class="range-val" id="to_val">60s</span>
+    </div>
+  </div>
+</div>
+
+<!-- === ASISTAN === -->
+<div class="section">
+  <div class="section-title">🎙️ Sesli Asistan</div>
+  <div class="card">
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Drawer (Asistan Modu)</div><div class="setting-desc">Asistan butonu alt panel olarak aç</div></div>
+      <label class="switch"><input type="checkbox" id="use_drawer_assistant"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Drawer (Paylaş Modu)</div><div class="setting-desc">Paylaş işlemi alt panel olarak aç</div></div>
+      <label class="switch"><input type="checkbox" id="use_drawer_shared"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Sesli Tetikleme</div><div class="setting-desc">Hey Asistan ile uyandır</div></div>
+      <label class="switch"><input type="checkbox" id="trigger_voice_assistant"><span class="slider"></span></label>
+    </div>
+  </div>
+</div>
+
+<!-- === DOSYA YÖNETİMİ === -->
+<div class="section">
+  <div class="section-title">📁 Dosya Yönetimi</div>
+  <div class="card">
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Otomatik Kaydet</div><div class="setting-desc">Dosyaları 5 dakikada bir otomatik kaydet</div></div>
+      <label class="switch"><input type="checkbox" id="auto_save_files"><span class="slider"></span></label>
+    </div>
+  </div>
+</div>
+
+<!-- === BİLDİRİMLER & HAP === -->
+<div class="section">
+  <div class="section-title">🔔 Bildirimler & Geri Bildirim</div>
+  <div class="card">
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Zengin Bildirimler</div><div class="setting-desc">Mesaj önizlemeli bildirimler</div></div>
+      <label class="switch"><input type="checkbox" id="rich_notifications"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Haptik Geri Bildirim</div><div class="setting-desc">Buton dokunuşlarında titreşim</div></div>
+      <label class="switch"><input type="checkbox" id="haptic_feedback"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="setting-info"><div class="setting-label">Güncelleme Kontrolü</div><div class="setting-desc">Başlangıçta GitHub'dan güncelleme ara</div></div>
+      <label class="switch"><input type="checkbox" id="auto_update_check"><span class="slider"></span></label>
+    </div>
+  </div>
+</div>
+
+<!-- === GİTHUB === -->
+<div class="section">
+  <div class="section-title">🐙 GitHub</div>
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">Kullanıcı Adı</label>
+      <input type="text" id="github_username" placeholder="kullanici-adi">
+    </div>
+  </div>
+</div>
+
+<!-- === PROXY === -->
+<div class="section">
+  <div class="section-title">🌐 Proxy / Ağ</div>
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">Proxy Host</label>
+      <input type="text" id="proxy_host" placeholder="192.168.1.1">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Proxy Port</label>
+      <input type="number" id="proxy_port" placeholder="8080">
+    </div>
+  </div>
+</div>
+
+<!-- === TEHLİKE === -->
+<div class="section">
+  <div class="section-title">⚠️ Tehlike Bölgesi</div>
+  <div class="card">
+    <div class="btn-row">
+      <button class="btn-action red" onclick="clearData()">🗑️ Tüm Veriyi Sil</button>
+    </div>
+  </div>
+</div>
+
+<div class="version-badge">Code-ioPRO v1.0.0 — Geliştirici: Muhammed</div>
+
+<div class="save-bar">
+  <button class="btn-save" onclick="saveAll()">💾 Ayarları Kaydet</button>
+</div>
+
+<script>
+var settings = {};
+
+function updateRange(id, valId, suffix){
+  var v = document.getElementById(id).value;
+  document.getElementById(valId).textContent = v + suffix;
+}
+
+function loadUI(s){
+  settings = s || {};
+  // Booleans
+  var bools = ['star_bg_enabled','copy_btn_enabled','download_btn_enabled','run_btn_enabled',
+    'haptic_feedback','compress_context','rich_notifications','auto_save_files',
+    'use_drawer_assistant','use_drawer_shared','trigger_voice_assistant','show_quota',
+    'auto_update_check','dark_mode','continue_last_chat'];
+  bools.forEach(function(k){
+    var el = document.getElementById(k);
+    if(el) el.checked = s[k] !== undefined ? !!s[k] : true;
+  });
+  // Strings
+  var strs = ['custom_api_url','ask_suffix','system_prompt','proxy_host','proxy_port','github_username','active_model'];
+  strs.forEach(function(k){
+    var el = document.getElementById(k);
+    if(el && s[k] !== undefined) el.value = s[k];
+  });
+  // Ints with range
+  [['text_zoom','text_zoom_val','%',100],['context_max_tokens','ctx_val','',4096],
+   ['max_history_msgs','hist_val','',50],['request_timeout_sec','to_val','s',60]].forEach(function(r){
+    var el = document.getElementById(r[0]);
+    if(el){ el.value = s[r[0]] !== undefined ? s[r[0]] : r[3]; updateRange(r[0],r[1],r[2]); }
+  });
+}
+
+function saveAll(){
+  var obj = {};
+  // Booleans
+  ['star_bg_enabled','copy_btn_enabled','download_btn_enabled','run_btn_enabled',
+   'haptic_feedback','compress_context','rich_notifications','auto_save_files',
+   'use_drawer_assistant','use_drawer_shared','trigger_voice_assistant','show_quota',
+   'auto_update_check','dark_mode','continue_last_chat'].forEach(function(k){
+    var el = document.getElementById(k);
+    if(el) obj[k] = el.checked;
+  });
+  // Strings
+  ['custom_api_url','ask_suffix','system_prompt','proxy_host','proxy_port','github_username','active_model'].forEach(function(k){
+    var el = document.getElementById(k);
+    if(el) obj[k] = el.value;
+  });
+  // Ints
+  ['text_zoom','context_max_tokens','max_history_msgs','request_timeout_sec'].forEach(function(k){
+    var el = document.getElementById(k);
+    if(el) obj[k] = parseInt(el.value);
+  });
+  if(typeof AndroidSettings !== 'undefined') AndroidSettings.saveSettings(JSON.stringify(obj));
+}
+
+function closeSettings(){
+  if(typeof AndroidSettings !== 'undefined') AndroidSettings.close();
+}
+
+function clearData(){
+  if(typeof AndroidSettings !== 'undefined') AndroidSettings.clearAllData();
+}
+
+// Load settings on init
+document.addEventListener('DOMContentLoaded', function(){
+  if(typeof AndroidSettings !== 'undefined'){
+    try{
+      var s = JSON.parse(AndroidSettings.getSettings());
+      loadUI(s);
+    } catch(e){ loadUI({}); }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+plugins {
+    id 'com.android.application'
+}
+
+System.setProperty("line.separator", "\n")
+
+android {
+    compileSdk 35
+    namespace 'com.codeioPRO.app'
+    android.buildFeatures.buildConfig true
+    defaultConfig {
+        applicationId "com.codeioPRO.app"
+        minSdk 31
+        targetSdk 35
+        versionCode 100
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        release {
+            def localProperties = new Properties()
+            def localPropertiesFile = rootProject.file('local.properties')
+            if (localPropertiesFile.exists()) {
+                localPropertiesFile.withInputStream { localProperties.load(it) }
+            }
+            def storeFileProp = localProperties.getProperty('signing.storeFile')
+            if (storeFileProp != null) {
+                storeFile = file(storeFileProp)
+                storePassword = localProperties.getProperty('signing.storePassword')
+                keyAlias = localProperties.getProperty('signing.keyAlias')
+                keyPassword = localProperties.getProperty('signing.keyPassword')
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            def releaseSigning = signingConfigs.findByName('release')
+            if (releaseSigning != null && releaseSigning.storeFile != null) {
+                signingConfig releaseSigning
+            }
+        }
+    }
+
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
+    packaging {
+        resources {
+            excludes += '/assets/dexopt/baseline.prof'
+            excludes += '/assets/dexopt/baseline.profm'
+            excludes += 'META-INF/LICENSE.md'
+            excludes += 'META-INF/LICENSE-notice.md'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+        coreLibraryDesugaringEnabled true
+    }
+
+    lintOptions {
+        disable "MissingTranslation"
+    }
+}
+
+dependencies {
+    // Core AndroidX
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.webkit:webkit:1.12.1'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.fragment:fragment:1.8.6'
+
+    // Bottom Navigation
+    implementation 'com.google.android.material:material:1.12.0'
+
+    // Biometric
+    implementation 'androidx.biometric:biometric:1.2.0-alpha05'
+
+    // Room (SQLite)
+    implementation 'androidx.room:room-runtime:2.6.1'
+    annotationProcessor 'androidx.room:room-compiler:2.6.1'
+
+    // Lifecycle
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
+    implementation 'androidx.lifecycle:lifecycle-livedata:2.8.7'
+
+    // RecyclerView
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+
+    // SwipeRefreshLayout
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // Core desugaring
+    coreLibraryDesugaring 'com.android.tools.desugar_jdk_libs:desugar_jdk_libs:2.1.4'
+
+    // JSON
+    implementation 'org.json:json:20240303'
+
+    // Preferences
+    implementation 'androidx.preference:preference:1.2.1'
+}

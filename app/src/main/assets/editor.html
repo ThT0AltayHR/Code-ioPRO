@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Code-ioPRO Editör</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#0E1525;color:#fff;font-family:'Courier New',monospace;font-size:13px;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+#editor-area{flex:1;overflow:hidden;display:flex;flex-direction:row;}
+#line-nums{
+  width:40px;overflow:hidden;color:#4A5568;font-size:12px;line-height:1.6;
+  padding:12px 4px 12px 8px;text-align:right;user-select:none;background:#0b1120;
+  white-space:pre;
+}
+#code-area{
+  flex:1;overflow:auto;padding:12px 12px 12px 8px;outline:none;
+  line-height:1.6;font-size:13px;color:#e2e8f0;white-space:pre;
+  caret-color:#00D4FF;word-break:normal;overflow-wrap:normal;
+  -webkit-appearance:none;resize:none;background:transparent;
+  border:none;font-family:'Courier New',Courier,monospace;
+}
+#code-area:focus{outline:none;}
+/* Syntax highlight classes */
+.kw{color:#7C4DFF;font-weight:700}
+.str{color:#00FF88}
+.num{color:#FFD740}
+.cmt{color:#4A5568;font-style:italic}
+.fn{color:#00D4FF}
+.op{color:#FF7E6B}
+.type{color:#CC85FF}
+/* Status bar */
+#status-bar{
+  display:flex;align-items:center;gap:16px;
+  padding:4px 12px;background:#0b1120;border-top:1px solid #1E2A40;
+  font-size:11px;color:#4A5568;font-family:monospace;
+}
+#status-lang{color:#00D4FF;font-weight:700;}
+#status-pos{margin-left:auto;}
+/* Keyboard toolbar */
+#kbd-bar{
+  display:flex;overflow-x:auto;gap:4px;
+  padding:4px 8px;background:#0d0d0d;border-top:1px solid #1a1a1a;
+}
+#kbd-bar::-webkit-scrollbar{display:none;}
+.kbd-btn{
+  background:#1a1a1a;color:#ccc;border:1px solid #333;
+  border-radius:5px;padding:5px 10px;font-size:12px;
+  white-space:nowrap;cursor:pointer;flex-shrink:0;font-family:monospace;
+}
+.kbd-btn:active{background:#00D4FF;color:#000;}
+</style>
+</head>
+<body>
+<div id="editor-area">
+  <div id="line-nums">1</div>
+  <textarea id="code-area" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"></textarea>
+</div>
+<div id="kbd-bar">
+  <button class="kbd-btn" onclick="ins('  ')">2×Spc</button>
+  <button class="kbd-btn" onclick="ins('\t')">Tab</button>
+  <button class="kbd-btn" onclick="ins('()')">( )</button>
+  <button class="kbd-btn" onclick="ins('[]')">[ ]</button>
+  <button class="kbd-btn" onclick="ins('{}')">{ }</button>
+  <button class="kbd-btn" onclick="ins('\"\"')">""</button>
+  <button class="kbd-btn" onclick="ins(\"''\")">''</button>
+  <button class="kbd-btn" onclick="ins(':')">:</button>
+  <button class="kbd-btn" onclick="ins(';')">;</button>
+  <button class="kbd-btn" onclick="ins(',')">,</button>
+  <button class="kbd-btn" onclick="ins('.')">.</button>
+  <button class="kbd-btn" onclick="ins('=')"> = </button>
+  <button class="kbd-btn" onclick="ins('=>')">=></button>
+  <button class="kbd-btn" onclick="ins('->')">-></button>
+  <button class="kbd-btn" onclick="ins('!==')">!==</button>
+  <button class="kbd-btn" onclick="ins('===')">===</button>
+  <button class="kbd-btn" onclick="ins('//')">//</button>
+  <button class="kbd-btn" onclick="ins('#')">#</button>
+</div>
+<div id="status-bar">
+  <span id="status-lang">plaintext</span>
+  <span id="status-modified" style="color:#FFD740;display:none">● Kaydedilmemiş</span>
+  <span id="status-pos" style="margin-left:auto">Satır 1, Sütun 1</span>
+</div>
+<script>
+var codeArea = document.getElementById('code-area');
+var lineNums = document.getElementById('line-nums');
+var modified = false;
+var currentLang = 'plaintext';
+
+window.editorLoad = function(content, lang){
+  codeArea.value = content;
+  currentLang = lang || 'plaintext';
+  document.getElementById('status-lang').textContent = lang || 'plaintext';
+  updateLineNums();
+  modified = false;
+  document.getElementById('status-modified').style.display = 'none';
+};
+
+window.editorGetContent = function(){
+  if(typeof Editor !== 'undefined') Editor.saveContent(codeArea.value);
+};
+
+codeArea.addEventListener('input', function(){
+  updateLineNums();
+  updatePos();
+  if(!modified){
+    modified = true;
+    document.getElementById('status-modified').style.display = '';
+    if(typeof Editor !== 'undefined') Editor.onContentChange(codeArea.value);
+  }
+});
+
+codeArea.addEventListener('keydown', function(e){
+  if(e.key === 'Tab'){
+    e.preventDefault();
+    ins('  ');
+  }
+  updatePos();
+});
+
+codeArea.addEventListener('click', updatePos);
+
+function updateLineNums(){
+  var lines = codeArea.value.split('\n').length;
+  var nums = '';
+  for(var i=1;i<=lines;i++) nums += i + '\n';
+  lineNums.textContent = nums;
+  // Sync scroll
+  lineNums.scrollTop = codeArea.scrollTop;
+}
+
+function updatePos(){
+  var txt = codeArea.value.substring(0, codeArea.selectionStart);
+  var lines = txt.split('\n');
+  var row = lines.length;
+  var col = lines[lines.length-1].length + 1;
+  document.getElementById('status-pos').textContent = 'Satır ' + row + ', Sütun ' + col;
+}
+
+codeArea.addEventListener('scroll', function(){
+  lineNums.scrollTop = codeArea.scrollTop;
+});
+
+function ins(text){
+  var start = codeArea.selectionStart;
+  var end   = codeArea.selectionEnd;
+  var val   = codeArea.value;
+  codeArea.value = val.substring(0,start) + text + val.substring(end);
+  codeArea.selectionStart = codeArea.selectionEnd = start + text.length;
+  codeArea.focus();
+  updateLineNums();
+}
+</script>
+</body>
+</html>

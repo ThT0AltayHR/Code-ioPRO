@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_chat"
+        android:icon="@drawable/ic_nav_agent"
+        android:title="@string/nav_chat" />
+    <item
+        android:id="@+id/nav_files"
+        android:icon="@drawable/ic_nav_files"
+        android:title="@string/nav_files" />
+    <item
+        android:id="@+id/nav_shell"
+        android:icon="@drawable/ic_nav_shell"
+        android:title="@string/nav_shell" />
+    <item
+        android:id="@+id/nav_market"
+        android:icon="@drawable/ic_nav_market"
+        android:title="@string/nav_market" />
+    <item
+        android:id="@+id/nav_secrets"
+        android:icon="@drawable/ic_nav_secrets"
+        android:title="@string/nav_secrets" />
+    <item
+        android:id="@+id/nav_agents"
+        android:icon="@drawable/ic_nav_agent2"
+        android:title="@string/nav_agents" />
+</menu>
