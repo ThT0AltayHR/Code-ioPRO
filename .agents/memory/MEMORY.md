@@ -1,0 +1,2 @@
+- [Android lifecycle crash fix](android-lifecycle-crash.md) — biometric alpha sürümü lifecycle-runtime'ı eski versiyona sabitliyor; explicit lifecycle-runtime:2.x.x bağımlılığı şart.
+- [Code-ioPRO stability fixes](codeioPRO-stability.md) — 8 kritik bug kategorisi; EditorActivity Run butonu, SubAgentFragment thread leak, WebView lifecycle, MainActivity back handler.
