@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,23 +44,67 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
+      - name: Generate release keystore
+        run: |
+          keytool -genkeypair \
+            -alias codeiopro \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -keystore keystore.jks \
+            -storepass codeiopro123 \
+            -keypass codeiopro123 \
+            -dname "CN=Code-ioPRO, OU=Dev, O=Code-ioPRO, L=Istanbul, ST=Istanbul, C=TR"
+          echo "signing.storeFile=$(pwd)/keystore.jks" >> local.properties
+          echo "signing.storePassword=codeiopro123"   >> local.properties
+          echo "signing.keyAlias=codeiopro"            >> local.properties
+          echo "signing.keyPassword=codeiopro123"      >> local.properties
+
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Rename APKs
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk \
+             app/build/outputs/apk/debug/Code-ioPRO-debug-${{ github.run_number }}.apk
+          cp app/build/outputs/apk/release/app-release.apk \
+             app/build/outputs/apk/release/Code-ioPRO-release-${{ github.run_number }}.apk
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Code-ioPRO-debug-${{ github.run_number }}
-          path: app/build/outputs/apk/debug/*.apk
+          path: app/build/outputs/apk/debug/Code-ioPRO-debug-${{ github.run_number }}.apk
           retention-days: 30
 
-      - name: Create Release on push to main
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Code-ioPRO-release-${{ github.run_number }}
+          path: app/build/outputs/apk/release/Code-ioPRO-release-${{ github.run_number }}.apk
+          retention-days: 90
+
+      - name: Create GitHub Release
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         uses: softprops/action-gh-release@v1
         with:
           tag_name: build-${{ github.run_number }}
           name: "Code-ioPRO Build #${{ github.run_number }}"
-          files: app/build/outputs/apk/debug/*.apk
+          body: |
+            ## Code-ioPRO Build #${{ github.run_number }}
+            
+            ### İndirme
+            - **Release APK** (önerilen): `Code-ioPRO-release-${{ github.run_number }}.apk`
+            - **Debug APK**: `Code-ioPRO-debug-${{ github.run_number }}.apk`
+            
+            ### Kurulum
+            Ayarlar → Güvenlik → Bilinmeyen Kaynaklara İzin Ver → APK'yı yükle
+          files: |
+            app/build/outputs/apk/debug/Code-ioPRO-debug-${{ github.run_number }}.apk
+            app/build/outputs/apk/release/Code-ioPRO-release-${{ github.run_number }}.apk
           draft: false
           prerelease: false
         env:
