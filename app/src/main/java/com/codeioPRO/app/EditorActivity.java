@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 public class EditorActivity extends AppCompatActivity {
 
     private static final String EXTRA_FILE_PATH = "file_path";
+    private static final long   MAX_FILE_SIZE   = 2 * 1024 * 1024; // 2 MB
     private WebView editorWebView;
     private String filePath;
     private String currentContent = "";
@@ -45,7 +46,13 @@ public class EditorActivity extends AppCompatActivity {
         filePath = getIntent().getStringExtra(EXTRA_FILE_PATH);
         if (filePath == null) { finish(); return; }
 
+        // Dosya boyutu kontrolü — çok büyük dosya OOM'a yol açar
         File f = new File(filePath);
+        if (f.length() > MAX_FILE_SIZE) {
+            Toast.makeText(this, "Dosya çok büyük (max 2 MB)", Toast.LENGTH_LONG).show();
+            finish(); return;
+        }
+
         TextView tvFilename = findViewById(R.id.tv_editor_filename);
         if (tvFilename != null) tvFilename.setText(f.getName());
 
@@ -65,15 +72,14 @@ public class EditorActivity extends AppCompatActivity {
         });
         editorWebView.loadUrl("file:///android_asset/editor.html");
 
-        // Toolbar buttons
-        View back = findViewById(R.id.btn_editor_back);
-        View save = findViewById(R.id.btn_editor_save);
-        View run  = findViewById(R.id.btn_editor_run);
+        View back  = findViewById(R.id.btn_editor_back);
+        View save  = findViewById(R.id.btn_editor_save);
+        View run   = findViewById(R.id.btn_editor_run);
         View share = findViewById(R.id.btn_editor_share);
 
-        if (back != null)  back.setOnClickListener(v -> onBackPressed());
-        if (save != null)  save.setOnClickListener(v -> saveFile());
-        if (run  != null)  run.setOnClickListener(v  -> runFile());
+        if (back  != null) back.setOnClickListener(v -> onBackPressed());
+        if (save  != null) save.setOnClickListener(v -> saveFile());
+        if (run   != null) run.setOnClickListener(v  -> runFile());
         if (share != null) share.setOnClickListener(v -> shareFile());
     }
 
@@ -82,6 +88,7 @@ public class EditorActivity extends AppCompatActivity {
             File f = new File(filePath);
             byte[] bytes = new byte[(int) f.length()];
             try (FileInputStream fis = new FileInputStream(f)) {
+                //noinspection ResultOfMethodCallIgnored
                 fis.read(bytes);
             }
             currentContent = new String(bytes, StandardCharsets.UTF_8);
@@ -95,25 +102,33 @@ public class EditorActivity extends AppCompatActivity {
     }
 
     private void saveFile() {
-        editorWebView.evaluateJavascript("if(window.editorGetContent)window.editorGetContent();", null);
+        if (editorWebView != null)
+            editorWebView.evaluateJavascript("if(window.editorGetContent)window.editorGetContent();", null);
     }
 
+    /**
+     * DÜZELTME: Daha önce getApplicationContext() instanceof MainActivity kontrolü
+     * yapılıyordu — bu her zaman false döner çünkü Application context hiçbir zaman
+     * Activity örneği değildir. Şimdi MainActivity'yi Intent ile başlatıyoruz.
+     */
     private void runFile() {
         File f = new File(filePath);
         String name = f.getName().toLowerCase();
         String cmd;
-        if (name.endsWith(".py"))  cmd = "python3 \"" + filePath + "\"";
-        else if (name.endsWith(".js")) cmd = "node \"" + filePath + "\"";
-        else if (name.endsWith(".sh")) cmd = "bash \"" + filePath + "\"";
-        else if (name.endsWith(".rb")) cmd = "ruby \"" + filePath + "\"";
-        else { Toast.makeText(this, "Bu dosya türü çalıştırılamaz", Toast.LENGTH_SHORT).show(); return; }
+        if      (name.endsWith(".py"))   cmd = "python3 \"" + filePath + "\"";
+        else if (name.endsWith(".js"))   cmd = "node \"" + filePath + "\"";
+        else if (name.endsWith(".sh"))   cmd = "bash \"" + filePath + "\"";
+        else if (name.endsWith(".rb"))   cmd = "ruby \"" + filePath + "\"";
+        else if (name.endsWith(".php"))  cmd = "php \"" + filePath + "\"";
+        else {
+            Toast.makeText(this, "Bu dosya türü çalıştırılamaz", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // MainActivity'yi Shell sekmesiyle öne getir
         Intent i = new Intent(this, MainActivity.class);
         i.putExtra("run_command", cmd);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        // Just finish and let shell run it
-        if (getApplicationContext() instanceof MainActivity) {
-            ((MainActivity) getApplicationContext()).navigateToShell(cmd);
-        }
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(i);
         finish();
     }
 
@@ -129,30 +144,30 @@ public class EditorActivity extends AppCompatActivity {
 
     private String detectLanguage(String name) {
         String n = name.toLowerCase();
-        if (n.endsWith(".py"))   return "python";
-        if (n.endsWith(".js"))   return "javascript";
-        if (n.endsWith(".ts"))   return "typescript";
-        if (n.endsWith(".java")) return "java";
-        if (n.endsWith(".kt"))   return "kotlin";
-        if (n.endsWith(".html")) return "html";
-        if (n.endsWith(".css"))  return "css";
-        if (n.endsWith(".json")) return "json";
-        if (n.endsWith(".xml"))  return "xml";
+        if (n.endsWith(".py"))              return "python";
+        if (n.endsWith(".js"))              return "javascript";
+        if (n.endsWith(".ts"))              return "typescript";
+        if (n.endsWith(".java"))            return "java";
+        if (n.endsWith(".kt"))              return "kotlin";
+        if (n.endsWith(".html"))            return "html";
+        if (n.endsWith(".css"))             return "css";
+        if (n.endsWith(".json"))            return "json";
+        if (n.endsWith(".xml"))             return "xml";
         if (n.endsWith(".yaml") || n.endsWith(".yml")) return "yaml";
         if (n.endsWith(".sh") || n.endsWith(".bash")) return "shell";
-        if (n.endsWith(".md"))   return "markdown";
-        if (n.endsWith(".go"))   return "go";
-        if (n.endsWith(".rs"))   return "rust";
+        if (n.endsWith(".md"))              return "markdown";
+        if (n.endsWith(".go"))              return "go";
+        if (n.endsWith(".rs"))              return "rust";
         if (n.endsWith(".cpp") || n.endsWith(".c") || n.endsWith(".h")) return "cpp";
-        if (n.endsWith(".php"))  return "php";
-        if (n.endsWith(".rb"))   return "ruby";
+        if (n.endsWith(".php"))             return "php";
+        if (n.endsWith(".rb"))              return "ruby";
         return "plaintext";
     }
 
     private String escapeForJs(String s) {
         if (s == null) return "";
         return s.replace("\\", "\\\\")
-                .replace("'", "\\'")
+                .replace("'",  "\\'")
                 .replace("\n", "\\n")
                 .replace("\r", "")
                 .replace("\"", "\\\"");
@@ -173,24 +188,21 @@ public class EditorActivity extends AppCompatActivity {
                     fos.write(content.getBytes(StandardCharsets.UTF_8));
                 }
                 isModified = false;
-                runOnUiThread(() -> Toast.makeText(EditorActivity.this, "✓ Kaydedildi", Toast.LENGTH_SHORT).show());
-                // Notify FilesFragment to refresh
-                runOnUiThread(() -> {
-                    if (EditorActivity.this.getParent() instanceof MainActivity) {
-                        FilesFragment ff = ((MainActivity) EditorActivity.this.getParent()).getFilesFragment();
-                        if (ff != null) ff.refreshFiles();
-                    }
-                });
+                runOnUiThread(() ->
+                    Toast.makeText(EditorActivity.this, "✓ Kaydedildi", Toast.LENGTH_SHORT).show());
+                // DÜZELTME: Önceki kod getParent() instanceof MainActivity yapıyordu —
+                // bu her zaman null döner. FilesFragment, onResume()'da otomatik yenilenir.
             } catch (IOException e) {
-                runOnUiThread(() -> Toast.makeText(EditorActivity.this, "Kaydetme hatası: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                runOnUiThread(() ->
+                    Toast.makeText(EditorActivity.this, "Kaydetme hatası: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             }
         }
 
         @JavascriptInterface
-        public String getFilePath() { return filePath; }
+        public String getFilePath()  { return filePath; }
 
         @JavascriptInterface
-        public String getFileName() { return new File(filePath).getName(); }
+        public String getFileName()  { return new File(filePath).getName(); }
     }
 
     @Override
@@ -199,12 +211,24 @@ public class EditorActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                 .setTitle("Kaydedilmemiş Değişiklikler")
                 .setMessage("Değişiklikler kaydedilsin mi?")
-                .setPositiveButton("Kaydet", (d, w) -> { saveFile(); finish(); })
-                .setNegativeButton("Kaydetme", (d, w) -> finish())
-                .setNeutralButton("İptal", null)
+                .setPositiveButton("Kaydet",    (d, w) -> { saveFile(); finish(); })
+                .setNegativeButton("Kaydetme",  (d, w) -> finish())
+                .setNeutralButton("İptal",      null)
                 .show();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (editorWebView != null) {
+            editorWebView.stopLoading();
+            editorWebView.clearHistory();
+            editorWebView.clearCache(true);
+            editorWebView.destroy();
+            editorWebView = null;
         }
     }
 }

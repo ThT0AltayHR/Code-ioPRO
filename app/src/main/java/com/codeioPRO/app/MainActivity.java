@@ -3,6 +3,7 @@ package com.codeioPRO.app;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         setupFragments(savedInstanceState);
         setupBottomNav();
+        setupBackPress();
 
         fragmentContainer.setAlpha(0f);
         fragmentContainer.animate().alpha(1f).setDuration(400).start();
@@ -61,6 +63,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         if (intent == null) return;
+
+        // EditorActivity.runFile() buraya yönlendirir
+        String runCmd = intent.getStringExtra("run_command");
+        if (runCmd != null) {
+            intent.removeExtra("run_command");
+            navigateToShell(runCmd);
+            return;
+        }
+
         String action = intent.getAction();
         if (Intent.ACTION_SEND.equals(action) || Intent.ACTION_VIEW.equals(action)) {
             switchToTab(TAG_CHAT);
@@ -95,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
         if (!secretsFragment.isAdded()) ft.add(R.id.fragment_container, secretsFragment, TAG_SECRETS);
         if (!agentsFragment.isAdded())  ft.add(R.id.fragment_container, agentsFragment,  TAG_AGENTS);
 
-        ft.hide(filesFragment).hide(shellFragment).hide(marketFragment).hide(secretsFragment).hide(agentsFragment);
+        ft.hide(filesFragment).hide(shellFragment).hide(marketFragment)
+          .hide(secretsFragment).hide(agentsFragment);
         ft.show(chatFragment);
         ft.commit();
 
@@ -115,6 +127,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * DÜZELTME: Deprecated onBackPressed() override, OnBackPressedCallback ile değiştirildi.
+     * Bu Android 13+ predictive back gesture ile uyumlu çalışır.
+     */
+    private void setupBackPress() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!TAG_CHAT.equals(activeTag)) {
+                    bottomNav.setSelectedItemId(R.id.nav_chat);
+                    switchToTab(TAG_CHAT);
+                } else if (chatFragment != null && chatFragment.canGoBack()) {
+                    chatFragment.goBack();
+                } else {
+                    setEnabled(false);
+                    getOnBackPressedDispatcher().onBackPressed();
+                }
+            }
+        });
+    }
+
     private boolean switchToTab(String tag) {
         if (tag.equals(activeTag)) return true;
 
@@ -131,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
         activeTag = tag;
 
-        // Haptic feedback
         View v = bottomNav.findViewById(getNavItemId(tag));
         if (v != null) v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
 
@@ -162,29 +194,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void navigateToFiles()              { bottomNav.setSelectedItemId(R.id.nav_files);   switchToTab(TAG_FILES); }
-    public void navigateToShell(String cmd)    { bottomNav.setSelectedItemId(R.id.nav_shell);   switchToTab(TAG_SHELL);   if (shellFragment != null && cmd != null) shellFragment.runCommand(cmd); }
-    public void navigateToChat()               { bottomNav.setSelectedItemId(R.id.nav_chat);    switchToTab(TAG_CHAT); }
-    public void navigateToMarket()             { bottomNav.setSelectedItemId(R.id.nav_market);  switchToTab(TAG_MARKET); }
-    public void navigateToSecrets()            { bottomNav.setSelectedItemId(R.id.nav_secrets); switchToTab(TAG_SECRETS); }
-    public void navigateToAgents()             { bottomNav.setSelectedItemId(R.id.nav_agents);  switchToTab(TAG_AGENTS); }
+    public void navigateToFiles()            { bottomNav.setSelectedItemId(R.id.nav_files);   switchToTab(TAG_FILES); }
+    public void navigateToShell(String cmd)  { bottomNav.setSelectedItemId(R.id.nav_shell);   switchToTab(TAG_SHELL); if (shellFragment != null && cmd != null) shellFragment.runCommand(cmd); }
+    public void navigateToChat()             { bottomNav.setSelectedItemId(R.id.nav_chat);    switchToTab(TAG_CHAT); }
+    public void navigateToMarket()           { bottomNav.setSelectedItemId(R.id.nav_market);  switchToTab(TAG_MARKET); }
+    public void navigateToSecrets()          { bottomNav.setSelectedItemId(R.id.nav_secrets); switchToTab(TAG_SECRETS); }
+    public void navigateToAgents()           { bottomNav.setSelectedItemId(R.id.nav_agents);  switchToTab(TAG_AGENTS); }
 
-    public ChatFragment     getChatFragment()     { return chatFragment; }
-    public FilesFragment    getFilesFragment()    { return filesFragment; }
-    public ShellFragment    getShellFragment()    { return shellFragment; }
-    public AiMarketFragment getMarketFragment()   { return marketFragment; }
-    public SecretsFragment  getSecretsFragment()  { return secretsFragment; }
-    public SubAgentFragment getAgentsFragment()   { return agentsFragment; }
-
-    @Override
-    public void onBackPressed() {
-        if (!TAG_CHAT.equals(activeTag)) {
-            bottomNav.setSelectedItemId(R.id.nav_chat);
-            switchToTab(TAG_CHAT);
-        } else if (chatFragment != null && chatFragment.canGoBack()) {
-            chatFragment.goBack();
-        } else {
-            super.onBackPressed();
-        }
-    }
+    public ChatFragment     getChatFragment()    { return chatFragment; }
+    public FilesFragment    getFilesFragment()   { return filesFragment; }
+    public ShellFragment    getShellFragment()   { return shellFragment; }
+    public AiMarketFragment getMarketFragment()  { return marketFragment; }
+    public SecretsFragment  getSecretsFragment() { return secretsFragment; }
+    public SubAgentFragment getAgentsFragment()  { return agentsFragment; }
 }

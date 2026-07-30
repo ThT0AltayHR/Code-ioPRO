@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -35,12 +34,45 @@ import java.util.Stack;
 
 public class FilesFragment extends Fragment {
 
-    private ListView listView;
-    private TextView tvCurrentPath, tvEmptyHint;
-    private File currentDir;
+    private ListView  listView;
+    private TextView  tvCurrentPath, tvEmptyHint;
+    private File      currentDir;
     private FileAdapter adapter;
     private final Stack<File> backStack = new Stack<>();
-    private static final File ROOT_DIR = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "Code-ioPRO");
+
+    // DÜZELTME: static final kaldırıldı — Context'e bağımlı path, lazy başlatma
+    private File rootDir = null;
+
+    /**
+     * Kök dizini döndürür.
+     * Önce Downloads/Code-ioPRO'yu dener; erişilemezse uygulama özel dış dizinine
+     * geri döner; o da yoksa iç depoya düşer.
+     */
+    private File getRootDir() {
+        if (rootDir != null && rootDir.exists()) return rootDir;
+
+        // 1. Public Downloads dizini
+        File pub = new File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "Code-ioPRO");
+        if (pub.exists() || pub.mkdirs()) {
+            rootDir = pub;
+            return rootDir;
+        }
+
+        // 2. Uygulama özel dış depolama (izin gerekmez, Android 4.4+)
+        File ext = new File(requireContext().getExternalFilesDir(null), "Code-ioPRO");
+        if (ext.exists() || ext.mkdirs()) {
+            rootDir = ext;
+            return rootDir;
+        }
+
+        // 3. Son çare: iç depolama
+        File internal = new File(requireContext().getFilesDir(), "Code-ioPRO");
+        if (!internal.exists()) internal.mkdirs();
+        rootDir = internal;
+        return rootDir;
+    }
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle s) {
@@ -50,12 +82,11 @@ public class FilesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle s) {
         super.onViewCreated(view, s);
-        listView     = view.findViewById(R.id.files_list);
+        listView      = view.findViewById(R.id.files_list);
         tvCurrentPath = view.findViewById(R.id.tv_current_path);
-        tvEmptyHint  = view.findViewById(R.id.tv_empty_hint);
+        tvEmptyHint   = view.findViewById(R.id.tv_empty_hint);
 
-        if (!ROOT_DIR.exists()) ROOT_DIR.mkdirs();
-        currentDir = ROOT_DIR;
+        currentDir = getRootDir();
 
         view.findViewById(R.id.btn_new_file).setOnClickListener(v -> showNewFileDialog());
         view.findViewById(R.id.btn_new_folder).setOnClickListener(v -> showNewFolderDialog());
@@ -87,7 +118,9 @@ public class FilesFragment extends Fragment {
     }
 
     public void refreshFiles() {
-        if (currentDir == null || !currentDir.exists()) currentDir = ROOT_DIR;
+        if (!isAdded() || getView() == null) return;
+        File root = getRootDir();
+        if (currentDir == null || !currentDir.exists()) currentDir = root;
         tvCurrentPath.setText(getRelativePath(currentDir));
         adapter.clear();
 
@@ -107,8 +140,8 @@ public class FilesFragment extends Fragment {
 
     public void addFile(File f) {
         if (f != null && f.exists()) {
-            // If file is in our dir, refresh
-            if (f.getParentFile() != null && f.getParentFile().getAbsolutePath().startsWith(ROOT_DIR.getAbsolutePath())) {
+            if (f.getParentFile() != null &&
+                    f.getParentFile().getAbsolutePath().startsWith(getRootDir().getAbsolutePath())) {
                 refreshFiles();
             }
         }
@@ -118,8 +151,8 @@ public class FilesFragment extends Fragment {
         if (!backStack.isEmpty()) {
             currentDir = backStack.pop();
             refreshFiles();
-        } else if (!currentDir.equals(ROOT_DIR)) {
-            currentDir = ROOT_DIR;
+        } else if (!currentDir.equals(getRootDir())) {
+            currentDir = getRootDir();
             refreshFiles();
         } else {
             Toast.makeText(requireContext(), "Kök dizindesiniz", Toast.LENGTH_SHORT).show();
@@ -136,9 +169,12 @@ public class FilesFragment extends Fragment {
                 String name = et.getText().toString().trim();
                 if (name.isEmpty()) return;
                 File f = new File(currentDir, name);
-                try { if (f.createNewFile()) { refreshFiles(); openEditor(f); }
-                      else Toast.makeText(requireContext(), "Dosya zaten mevcut", Toast.LENGTH_SHORT).show();
-                } catch (IOException e) { Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show(); }
+                try {
+                    if (f.createNewFile()) { refreshFiles(); openEditor(f); }
+                    else Toast.makeText(requireContext(), "Dosya zaten mevcut", Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    Toast.makeText(requireContext(), "Hata: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             })
             .setNegativeButton("İptal", null)
             .show();
@@ -171,7 +207,7 @@ public class FilesFragment extends Fragment {
         menu.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case 1: openEditor(f); break;
-                case 2: shareFile(f); break;
+                case 2: shareFile(f);  break;
                 case 3: runInShell(f); break;
                 case 4: renameFile(f); break;
                 case 5: deleteFile(f); break;
@@ -183,27 +219,32 @@ public class FilesFragment extends Fragment {
 
     private void openFile(File f) {
         String name = f.getName().toLowerCase();
-        // Text/code files open in editor
         if (isTextFile(name)) { openEditor(f); return; }
-        // Images open in viewer
-        if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".gif") || name.endsWith(".webp")) {
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            Uri uri = FileProvider.getUriForFile(requireContext(), "com.codeioPRO.app.fileprovider", f);
-            i.setDataAndType(uri, "image/*");
-            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(i);
+        if (name.endsWith(".png") || name.endsWith(".jpg") ||
+                name.endsWith(".jpeg") || name.endsWith(".gif") || name.endsWith(".webp")) {
+            try {
+                Uri uri = FileProvider.getUriForFile(requireContext(), "com.codeioPRO.app.fileprovider", f);
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setDataAndType(uri, "image/*");
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(i);
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), "Görüntüleyici bulunamadı", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
-        // PDF
         if (name.endsWith(".pdf")) {
-            Intent i = new Intent(Intent.ACTION_VIEW);
-            Uri uri = FileProvider.getUriForFile(requireContext(), "com.codeioPRO.app.fileprovider", f);
-            i.setDataAndType(uri, "application/pdf");
-            i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            try { startActivity(i); } catch (Exception e) { Toast.makeText(requireContext(), "PDF görüntüleyici bulunamadı", Toast.LENGTH_SHORT).show(); }
+            try {
+                Uri uri = FileProvider.getUriForFile(requireContext(), "com.codeioPRO.app.fileprovider", f);
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setDataAndType(uri, "application/pdf");
+                i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(i);
+            } catch (Exception e) {
+                Toast.makeText(requireContext(), "PDF görüntüleyici bulunamadı", Toast.LENGTH_SHORT).show();
+            }
             return;
         }
-        // Default: share
         showFileMenu(listView, f);
     }
 
@@ -222,8 +263,7 @@ public class FilesFragment extends Fragment {
 
     private void runInShell(File f) {
         if (!(getActivity() instanceof MainActivity)) return;
-        String cmd = buildRunCommand(f);
-        ((MainActivity) getActivity()).navigateToShell(cmd);
+        ((MainActivity) getActivity()).navigateToShell(buildRunCommand(f));
     }
 
     private String buildRunCommand(File f) {
@@ -249,8 +289,12 @@ public class FilesFragment extends Fragment {
                 String newName = et.getText().toString().trim();
                 if (newName.isEmpty() || newName.equals(f.getName())) return;
                 File newFile = new File(f.getParentFile(), newName);
-                if (f.renameTo(newFile)) { refreshFiles(); Toast.makeText(requireContext(), "✓ Yeniden adlandırıldı", Toast.LENGTH_SHORT).show(); }
-                else Toast.makeText(requireContext(), "Yeniden adlandırma başarısız", Toast.LENGTH_SHORT).show();
+                if (f.renameTo(newFile)) {
+                    refreshFiles();
+                    Toast.makeText(requireContext(), "✓ Yeniden adlandırıldı", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "Yeniden adlandırma başarısız", Toast.LENGTH_SHORT).show();
+                }
             })
             .setNegativeButton("İptal", null)
             .show();
@@ -261,15 +305,22 @@ public class FilesFragment extends Fragment {
             .setTitle("Sil")
             .setMessage("\"" + f.getName() + "\" silinsin mi?")
             .setPositiveButton("Sil", (d, w) -> {
-                if (deleteRecursive(f)) { refreshFiles(); Toast.makeText(requireContext(), "✓ Silindi", Toast.LENGTH_SHORT).show(); }
-                else Toast.makeText(requireContext(), "Silme başarısız", Toast.LENGTH_SHORT).show();
+                if (deleteRecursive(f)) {
+                    refreshFiles();
+                    Toast.makeText(requireContext(), "✓ Silindi", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "Silme başarısız", Toast.LENGTH_SHORT).show();
+                }
             })
             .setNegativeButton("İptal", null)
             .show();
     }
 
     private boolean deleteRecursive(File f) {
-        if (f.isDirectory()) { File[] ch = f.listFiles(); if (ch != null) for (File c : ch) deleteRecursive(c); }
+        if (f.isDirectory()) {
+            File[] ch = f.listFiles();
+            if (ch != null) for (File c : ch) deleteRecursive(c);
+        }
         return f.delete();
     }
 
@@ -283,15 +334,15 @@ public class FilesFragment extends Fragment {
     }
 
     private String getRelativePath(File f) {
-        String abs = f.getAbsolutePath();
-        String root = ROOT_DIR.getAbsolutePath();
+        String abs  = f.getAbsolutePath();
+        String root = getRootDir().getAbsolutePath();
         if (abs.startsWith(root)) return "Code-ioPRO" + abs.substring(root.length());
         return abs;
     }
 
     private static String formatSize(long bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return (bytes / 1024) + " KB";
+        if (bytes < 1024)             return bytes + " B";
+        if (bytes < 1024 * 1024)      return (bytes / 1024) + " KB";
         return (bytes / (1024 * 1024)) + " MB";
     }
 
@@ -301,11 +352,12 @@ public class FilesFragment extends Fragment {
 
         @NonNull @Override
         public View getView(int pos, @Nullable View cv, @NonNull ViewGroup parent) {
-            if (cv == null) cv = LayoutInflater.from(getContext()).inflate(R.layout.item_file, parent, false);
+            if (cv == null)
+                cv = LayoutInflater.from(getContext()).inflate(R.layout.item_file, parent, false);
             File f = getItem(pos);
             if (f == null) return cv;
-            TextView tvName = cv.findViewById(R.id.tv_file_name);
-            TextView tvMeta = cv.findViewById(R.id.tv_file_meta);
+            TextView  tvName = cv.findViewById(R.id.tv_file_name);
+            TextView  tvMeta = cv.findViewById(R.id.tv_file_meta);
             ImageView ivIcon = cv.findViewById(R.id.iv_file_icon);
 
             tvName.setText(f.getName());
@@ -315,7 +367,8 @@ public class FilesFragment extends Fragment {
             } else {
                 ivIcon.setImageResource(getFileIcon(f.getName()));
                 String meta = formatSize(f.length()) + "  •  " +
-                    new SimpleDateFormat("dd MMM yy", Locale.getDefault()).format(new Date(f.lastModified()));
+                    new SimpleDateFormat("dd MMM yy", Locale.getDefault())
+                        .format(new Date(f.lastModified()));
                 tvMeta.setText(meta);
             }
             return cv;
@@ -323,17 +376,18 @@ public class FilesFragment extends Fragment {
 
         private int getFileIcon(String name) {
             String n = name.toLowerCase();
-            if (n.endsWith(".py"))   return R.drawable.ic_file_python;
-            if (n.endsWith(".js") || n.endsWith(".ts")) return R.drawable.ic_file_js;
-            if (n.endsWith(".java") || n.endsWith(".kt")) return R.drawable.ic_file_java;
-            if (n.endsWith(".html") || n.endsWith(".css")) return R.drawable.ic_file_web;
-            if (n.endsWith(".json") || n.endsWith(".xml")) return R.drawable.ic_file_data;
-            if (n.endsWith(".md"))   return R.drawable.ic_file_md;
-            if (n.endsWith(".sh") || n.endsWith(".bash")) return R.drawable.ic_file_shell;
-            if (n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".gif") || n.endsWith(".webp")) return R.drawable.ic_file_image;
-            if (n.endsWith(".pdf"))  return R.drawable.ic_file_pdf;
-            if (n.endsWith(".zip") || n.endsWith(".jar")) return R.drawable.ic_file_zip;
-            if (n.endsWith(".apk"))  return R.drawable.ic_file_apk;
+            if (n.endsWith(".py"))                              return R.drawable.ic_file_python;
+            if (n.endsWith(".js") || n.endsWith(".ts"))         return R.drawable.ic_file_js;
+            if (n.endsWith(".java") || n.endsWith(".kt"))       return R.drawable.ic_file_java;
+            if (n.endsWith(".html") || n.endsWith(".css"))      return R.drawable.ic_file_web;
+            if (n.endsWith(".json") || n.endsWith(".xml"))      return R.drawable.ic_file_data;
+            if (n.endsWith(".md"))                              return R.drawable.ic_file_md;
+            if (n.endsWith(".sh") || n.endsWith(".bash"))       return R.drawable.ic_file_shell;
+            if (n.endsWith(".png") || n.endsWith(".jpg") ||
+                    n.endsWith(".gif") || n.endsWith(".webp"))  return R.drawable.ic_file_image;
+            if (n.endsWith(".pdf"))                             return R.drawable.ic_file_pdf;
+            if (n.endsWith(".zip") || n.endsWith(".jar"))       return R.drawable.ic_file_zip;
+            if (n.endsWith(".apk"))                             return R.drawable.ic_file_apk;
             return R.drawable.ic_file_generic;
         }
     }

@@ -355,4 +355,15 @@ public class AiMarketFragment extends Fragment {
                 .getString("active_model", "");
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (marketWebView != null) {
+            marketWebView.stopLoading();
+            marketWebView.clearHistory();
+            marketWebView.destroy();
+            marketWebView = null;
+        }
+    }
 }

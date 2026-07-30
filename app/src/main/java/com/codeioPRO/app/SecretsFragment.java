@@ -229,4 +229,15 @@ public class SecretsFragment extends Fragment {
             });
         }
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (secretsWebView != null) {
+            secretsWebView.stopLoading();
+            secretsWebView.clearHistory();
+            secretsWebView.destroy();
+            secretsWebView = null;
+        }
+    }
 }

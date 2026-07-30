@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">Code-ioPRO</string>
     <string name="nav_agents">Agentlar</string>
     <string name="ask_ai_label">Code-ioPRO\'ya Sor</string>
-    <string name="app_version" translatable="false">1.0.0</string>
+    <string name="app_version" translatable="false">1.1.0</string>
     <string name="developer_name" translatable="false">Muhammed</string>
 
     <!-- Navigation Tabs -->
