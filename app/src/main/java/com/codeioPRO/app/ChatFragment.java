@@ -239,7 +239,7 @@ public class ChatFragment extends Fragment {
         "row.style='display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;" +
         "background:'+(curModel===m.id?'rgba(242,98,7,.1)':'transparent')+';" +
         "border:1px solid '+(curModel===m.id?'#F26207':'transparent')+';margin-bottom:4px;transition:.15s;';" +
-        "row.innerHTML='<span>'+m.icon+'</span><span style="color:#F0F2F5;font-size:13px;font-weight:600">'+m.label+'</span>';" +
+        "row.innerHTML='<span>'+m.icon+'</span><span style=\"color:#F0F2F5;font-size:13px;font-weight:600\">'+m.label+'</span>';" +
         "row.onclick=function(){curModel=m.id;refreshLabel();" +
         "if(typeof Android!='undefined')Android.setModel(curModel);" +
         "picker.style.display='none';" +
