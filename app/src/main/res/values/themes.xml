@@ -28,7 +28,6 @@
         <item name="android:textColorHint">@color/text_hint</item>
 
         <!-- Bottom Navigation -->
-        <item name="bottomNavigationStyle">@style/Widget.CodeioPRO.BottomNavigation</item>
 
         <!-- AlertDialog -->
         <item name="alertDialogTheme">@style/Theme.CodeioPRO.AlertDialog</item>
@@ -37,13 +36,6 @@
         <item name="editTextStyle">@style/Widget.CodeioPRO.EditText</item>
     </style>
 
-    <style name="Widget.CodeioPRO.BottomNavigation" parent="Widget.MaterialComponents.BottomNavigationView">
-        <item name="android:background">@color/bg_bottom_nav</item>
-        <item name="itemIconTint">@color/bottom_nav_item_color</item>
-        <item name="itemTextColor">@color/bottom_nav_item_color</item>
-        <item name="labelVisibilityMode">labeled</item>
-        <item name="elevation">8dp</item>
-    </style>
 
     <style name="Theme.CodeioPRO.AlertDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:background">@color/bg_card</item>
