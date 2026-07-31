@@ -11,8 +11,8 @@ android {
         applicationId "com.codeioPRO.app"
         minSdk 31
         targetSdk 35
-        versionCode 15
-        versionName "1.1.5"
+        versionCode 16
+        versionName "1.2.0"
     }
 
     signingConfigs {

@@ -58,7 +58,7 @@ public class SettingsBridge {
             o.put("proxy_host",            p.getString("proxy_host",         ""));
             o.put("proxy_port",            p.getString("proxy_port",         ""));
             o.put("github_username",       p.getString("github_username",    ""));
-            o.put("active_provider",       p.getString("active_provider",    "duckduckgo"));
+            o.put("active_provider",       p.getString("active_provider", "m-ai"));
             o.put("active_model",          p.getString("active_model",       ""));
             // Secrets (existence only)
             o.put("has_openai_key",        secrets.hasSecret("openai_api_key"));
@@ -66,7 +66,7 @@ public class SettingsBridge {
             o.put("has_gemini_key",        secrets.hasSecret("gemini_api_key"));
             o.put("has_github_token",      secrets.hasSecret("github_token"));
             o.put("has_groq_key",          secrets.hasSecret("groq_api_key"));
-            o.put("app_version",           "1.1.0");
+            o.put("app_version", "1.2.0");
             return o.toString();
         } catch (Exception e) { return "{}"; }
     }

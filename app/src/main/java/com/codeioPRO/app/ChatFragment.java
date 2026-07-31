@@ -84,6 +84,30 @@ public class ChatFragment extends Fragment {
         "return new Promise(function(res,rej){try{Android.copyToClipboard(t);res();}catch(e){rej(e);}});}" +
         "}})();";
 
+
+    // ── Marka gizleme: duck.ai sayfasındaki DuckDuckGo logolarını maskele ──────
+    private static final String BRAND_HIDE_JS =
+        "(function(){" +
+        "if(window.brandHideInjected)return;window.brandHideInjected=true;" +
+        "var style=document.createElement('style');" +
+        "style.textContent=" +
+        "'[class*=\"logo\"],[class*=\"Logo\"],[class*=\"wordmark\"],' +" +
+        "'[class*=\"Wordmark\"],[class*=\"dax\"],[class*=\"Dax\"],' +" +
+        "'[class*=\"duck\"]:not(input):not(textarea),' +" +
+        "'[aria-label*=\"DuckDuckGo\"],' +" +
+        "'a[href*=\"duckduckgo.com/about\"],' +" +
+        "'a[href*=\"spread.duckduckgo\"]' +" +
+        "'{display:none!important}';" +
+        "document.head.appendChild(style);" +
+        // MutationObserver to handle dynamic content
+        "var obs=new MutationObserver(function(m){" +
+        "document.querySelectorAll('[class*=\"logo\"],[class*=\"Logo\"]').forEach(function(el){" +
+        "if(el.textContent&&el.textContent.includes('DuckDuckGo')){" +
+        "el.style.display='none';}" +
+        "});});" +
+        "obs.observe(document.body,{childList:true,subtree:true});" +
+        "})()";
+
     private static final String STAR_BG_JS =
         "(function(){if(window.starBgInjected)return;window.starBgInjected=true;" +
         "var c=document.createElement('canvas');" +
@@ -385,6 +409,7 @@ public class ChatFragment extends Fragment {
         @Override public void onPageFinished(WebView v, String url) {
             if (progressBar != null) progressBar.setVisibility(View.GONE);
             v.evaluateJavascript(BLOB_JS, null);
+            v.evaluateJavascript(BRAND_HIDE_JS, null);
             v.evaluateJavascript(CLIPBOARD_JS, null);
             v.evaluateJavascript(SETTINGS_BTN_JS, null);
             v.evaluateJavascript(COPY_BTN_JS, null);

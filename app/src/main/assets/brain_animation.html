@@ -16,79 +16,132 @@ canvas{display:block;width:100%;height:100%}
 (function(){
   var W=window.innerWidth,H=window.innerHeight;
   var renderer=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true,alpha:true});
-  renderer.setSize(W,H);renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(W,H);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2.5));
   renderer.setClearColor(0x000000,0);
+  renderer.shadowMap.enabled=false;
 
   var scene=new THREE.Scene();
-  var camera=new THREE.PerspectiveCamera(60,W/H,0.1,100);
-  camera.position.set(0,0,2.8);
+  var camera=new THREE.PerspectiveCamera(55,W/H,0.1,100);
+  camera.position.set(0,0,3.2);
 
-  // Brain mesh using sphere + noise displacement
-  var geo=new THREE.SphereGeometry(1,64,64);
+  // ── Brain mesh (hemisphere-shaped sphere with Perlin-style noise) ──────────
+  var geo=new THREE.SphereGeometry(1,96,96);
   var pos=geo.attributes.position;
-  var norms=[];
   for(var i=0;i<pos.count;i++){
     var x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
-    var n=noise3(x*2.5,y*2.5,z*2.5)*0.18+noise3(x*5,y*5,z*5)*0.08;
-    // Flatten bottom slightly (like real brain)
-    var fy=y<0?y*0.7:y;
+    var n1=noise3(x*2.2,y*2.2,z*2.2)*0.20;
+    var n2=noise3(x*5.5,y*5.5,z*5.5)*0.07;
+    var n3=noise3(x*11,y*11,z*11)*0.03;
+    var n=n1+n2+n3;
+    var fy=y<0?y*0.72:y;
     pos.setXYZ(i,x*(1+n),fy*(1+n*0.6),z*(1+n));
-    norms.push(x,y,z);
   }
   pos.needsUpdate=true;
   geo.computeVertexNormals();
 
-  // Materials
   var brainMat=new THREE.MeshPhongMaterial({
-    color:0x1a2a3a,emissive:0x001020,specular:0x003355,shininess:40,
-    transparent:true,opacity:0.92,wireframe:false
+    color:0x0D1B2E,
+    emissive:0x001525,
+    specular:0x004477,
+    shininess:60,
+    transparent:true,
+    opacity:0.94
   });
   var brain=new THREE.Mesh(geo,brainMat);
   scene.add(brain);
 
-  // Wireframe overlay for circuit look
-  var wireGeo=new THREE.SphereGeometry(1.005,24,24);
-  var wireMat=new THREE.MeshBasicMaterial({color:0x00D4FF,wireframe:true,transparent:true,opacity:0.06});
+  // ── Circuit wireframe ──────────────────────────────────────────────────────
+  var wireGeo=new THREE.SphereGeometry(1.01,28,28);
+  var wireMat=new THREE.MeshBasicMaterial({color:0x00D4FF,wireframe:true,transparent:true,opacity:0.05});
   var wire=new THREE.Mesh(wireGeo,wireMat);
   brain.add(wire);
 
-  // Circuit nodes (10 blue spheres)
+  // ── Synapse nodes (16 nodes) ───────────────────────────────────────────────
   var nodes=[];
-  var nodeGeo=new THREE.SphereGeometry(0.04,8,8);
-  for(var i=0;i<10;i++){
-    var phi=Math.acos(-1+2*i/10);
-    var theta=Math.sqrt(10*Math.PI)*phi;
+  var nodeGeo=new THREE.SphereGeometry(0.035,8,8);
+  for(var i=0;i<16;i++){
+    var phi=Math.acos(-1+2*i/16);
+    var theta=Math.sqrt(16*Math.PI)*phi;
     var nm=new THREE.MeshBasicMaterial({color:0x00D4FF,transparent:true,opacity:0});
     var node=new THREE.Mesh(nodeGeo,nm);
-    node.position.setFromSphericalCoords(1.05,phi,theta);
+    node.position.setFromSphericalCoords(1.04,phi,theta);
     scene.add(node);
-    nodes.push({mesh:node,phi:phi,theta:theta,phase:Math.random()*Math.PI*2,speed:0.5+Math.random()});
+    nodes.push({mesh:node,phi:phi,theta:theta,
+      phase:Math.random()*Math.PI*2,
+      speed:0.4+Math.random()*0.8,
+      orbitSpeed:0.002+Math.random()*0.003});
   }
 
-  // Connection lines between nodes
+  // ── Synapse connection lines ───────────────────────────────────────────────
   var lines=[];
-  var lineMat=new THREE.LineBasicMaterial({color:0x00D4FF,transparent:true,opacity:0});
-  for(var i=0;i<nodes.length-1;i++){
-    var pts=[nodes[i].mesh.position.clone(),nodes[(i+2)%nodes.length].mesh.position.clone()];
+  for(var i=0;i<nodes.length;i++){
+    var j=(i+3)%nodes.length;
+    var pts=[nodes[i].mesh.position.clone(),nodes[j].mesh.position.clone()];
     var lg=new THREE.BufferGeometry().setFromPoints(pts);
-    var line=new THREE.Line(lg,lineMat.clone());
+    var lm=new THREE.LineBasicMaterial({color:0x00D4FF,transparent:true,opacity:0});
+    var line=new THREE.Line(lg,lm);
     scene.add(line);
-    lines.push(line);
+    lines.push({line:line,from:i,to:j});
   }
 
-  // Glow sphere
-  var glowGeo=new THREE.SphereGeometry(1.15,32,32);
-  var glowMat=new THREE.MeshBasicMaterial({color:0x00D4FF,transparent:true,opacity:0,side:THREE.BackSide});
+  // ── Outer glow sphere ─────────────────────────────────────────────────────
+  var glowGeo=new THREE.SphereGeometry(1.22,32,32);
+  var glowMat=new THREE.MeshBasicMaterial({
+    color:0x00D4FF,transparent:true,opacity:0,side:THREE.BackSide
+  });
   var glow=new THREE.Mesh(glowGeo,glowMat);
   scene.add(glow);
 
-  // Lights
-  scene.add(new THREE.AmbientLight(0x112233,1.5));
-  var pl=new THREE.PointLight(0x00D4FF,0.5,5);pl.position.set(2,2,2);scene.add(pl);
-  var pl2=new THREE.PointLight(0x0066ff,0.3,5);pl2.position.set(-2,-1,-2);scene.add(pl2);
+  // ── Mid glow ──────────────────────────────────────────────────────────────
+  var glow2Geo=new THREE.SphereGeometry(1.10,32,32);
+  var glow2Mat=new THREE.MeshBasicMaterial({
+    color:0x0055AA,transparent:true,opacity:0,side:THREE.BackSide
+  });
+  var glow2=new THREE.Mesh(glow2Geo,glow2Mat);
+  scene.add(glow2);
 
-  // State
+  // ── Particle system (energy sparks) ──────────────────────────────────────
+  var PART_COUNT=180;
+  var partGeo=new THREE.BufferGeometry();
+  var partPos=new Float32Array(PART_COUNT*3);
+  var partData=[];
+  for(var i=0;i<PART_COUNT;i++){
+    var phi2=Math.random()*Math.PI*2;
+    var theta2=Math.random()*Math.PI;
+    var r=1.05+Math.random()*0.35;
+    partPos[i*3]  =r*Math.sin(theta2)*Math.cos(phi2);
+    partPos[i*3+1]=r*Math.cos(theta2);
+    partPos[i*3+2]=r*Math.sin(theta2)*Math.sin(phi2);
+    partData.push({
+      phi:phi2,theta:theta2,r:r,
+      vPhi:(Math.random()-0.5)*0.02,
+      vTheta:(Math.random()-0.5)*0.01,
+      life:Math.random(),
+      speed:0.005+Math.random()*0.015
+    });
+  }
+  partGeo.setAttribute('position',new THREE.BufferAttribute(partPos,3));
+  var partMat=new THREE.PointsMaterial({
+    color:0x00D4FF,size:0.03,transparent:true,opacity:0,
+    sizeAttenuation:true,blending:THREE.AdditiveBlending,depthWrite:false
+  });
+  var particles=new THREE.Points(partGeo,partMat);
+  scene.add(particles);
+
+  // ── Lights ────────────────────────────────────────────────────────────────
+  scene.add(new THREE.AmbientLight(0x091824,2.0));
+  var pl1=new THREE.PointLight(0x00D4FF,0.6,6);
+  pl1.position.set(2.5,2,2);scene.add(pl1);
+  var pl2=new THREE.PointLight(0x0055BB,0.4,5);
+  pl2.position.set(-2,-1.5,-2);scene.add(pl2);
+  var pl3=new THREE.PointLight(0x00FFAA,0.2,4);
+  pl3.position.set(0,2.5,-1);scene.add(pl3);
+
+  // ── State ─────────────────────────────────────────────────────────────────
   var isActive=false,quota=100,t=0;
+  var targetGlow=0,currentGlow=0;
+  var targetWire=0.05,currentWire=0.05;
 
   window.setBrainActive=function(active){
     isActive=!!active;
@@ -96,49 +149,98 @@ canvas{display:block;width:100%;height:100%}
   };
   window.setBrainQuota=function(q){quota=Math.max(0,Math.min(100,q));};
 
-  // Simple 3D noise
+  // ── Perlin-style noise ────────────────────────────────────────────────────
   function noise3(x,y,z){
-    var X=Math.floor(x)&255,Y=Math.floor(y)&255,Z=Math.floor(z)&255;
-    x-=Math.floor(x);y-=Math.floor(y);z-=Math.floor(z);
+    var X=Math.floor(x),Y=Math.floor(y),Z=Math.floor(z);
+    x-=X;y-=Y;z-=Z;
     var u=fade(x),v=fade(y),w=fade(z);
-    var s=Math.sin(X*127.1+Y*311.7+Z*74.7)*43758.5453;
+    var a=((X*7+Y*13+Z*29)*2654435761)>>>0;
+    var b=((X*7+Y*13+(Z+1)*29)*2654435761)>>>0;
+    var s=Math.sin(a*0.00000001+b*0.0000001)*43758.5453;
     return (s-Math.floor(s))*2-1;
   }
   function fade(t){return t*t*t*(t*(t*6-15)+10);}
 
+  // ── Lerp helper ───────────────────────────────────────────────────────────
+  function lerp(a,b,f){return a+(b-a)*f;}
+
+  // ── Animate ───────────────────────────────────────────────────────────────
   function animate(){
     requestAnimationFrame(animate);
     t+=0.016;
-    brain.rotation.y+=0.005;
-    brain.rotation.x=Math.sin(t*0.3)*0.08;
-
     var q=quota/100;
-    var brightness=isActive?0.15+q*0.15:0.03;
-    brainMat.emissiveIntensity=brightness;
-    brainMat.emissive.setRGB(0,brightness*0.3,brightness*0.5);
 
-    // Nodes & lines
-    var na=isActive?0.9*q:0;
+    // Brain rotation — eased
+    var targetRotY=isActive?0.008:0.003;
+    brain.rotation.y+=lerp(brain.rotation.y,brain.rotation.y+targetRotY,0.1)*0.01+targetRotY;
+    brain.rotation.x=Math.sin(t*0.25)*0.07;
+
+    // Emissive intensity
+    var targetEmissive=isActive?0.12+q*0.22:0.03;
+    var curEmissive=brainMat.emissiveIntensity||0;
+    var newEmissive=lerp(curEmissive,targetEmissive,0.04);
+    brainMat.emissiveIntensity=newEmissive;
+    brainMat.emissive.setRGB(0,newEmissive*0.25,newEmissive*0.55);
+
+    // Nodes / synapses
+    var nodeAlpha=isActive?0.9*q:0;
     nodes.forEach(function(n,i){
       var pulse=0.5+0.5*Math.sin(t*n.speed*2+n.phase);
-      n.mesh.material.opacity=na*pulse;
-      // orbit slowly
-      n.theta+=0.003;
-      n.mesh.position.setFromSphericalCoords(1.05,n.phi,n.theta);
-    });
-    lines.forEach(function(l,i){
-      var pulse=0.3+0.3*Math.sin(t*1.5+i*0.7);
-      l.material.opacity=isActive?na*pulse*0.6:0;
+      var targetA=nodeAlpha*pulse;
+      n.mesh.material.opacity=lerp(n.mesh.material.opacity,targetA,0.06);
+      n.theta+=n.orbitSpeed*(isActive?1.5:0.5);
+      n.mesh.position.setFromSphericalCoords(1.04,n.phi,n.theta);
     });
 
-    // Glow
-    glowMat.opacity=isActive?0.04*q:0;
+    // Lines
+    lines.forEach(function(l,i){
+      var pts=[
+        nodes[l.from].mesh.position.clone(),
+        nodes[l.to].mesh.position.clone()
+      ];
+      l.line.geometry.setFromPoints(pts);
+      l.line.geometry.attributes.position.needsUpdate=true;
+      var pulse2=0.3+0.3*Math.sin(t*1.8+i*0.5);
+      var targetA2=isActive?nodeAlpha*pulse2*0.5:0;
+      l.line.material.opacity=lerp(l.line.material.opacity,targetA2,0.05);
+    });
+
+    // Outer glow
+    targetGlow=isActive?0.07*q:0;
+    currentGlow=lerp(currentGlow,targetGlow,0.04);
+    glowMat.opacity=currentGlow;
+    glow2Mat.opacity=currentGlow*0.6;
 
     // Wire
-    wireMat.opacity=isActive?0.08+0.04*Math.sin(t)*q:0.04;
+    targetWire=isActive?0.10+0.04*Math.sin(t)*q:0.04;
+    currentWire=lerp(currentWire,targetWire,0.04);
+    wireMat.opacity=currentWire;
+
+    // Particles
+    var pAlpha=isActive?0.7*q:0;
+    partMat.opacity=lerp(partMat.opacity,pAlpha,0.04);
+    var pp=partGeo.attributes.position;
+    for(var i=0;i<PART_COUNT;i++){
+      var pd=partData[i];
+      pd.life+=pd.speed*(isActive?1.5:0.5);
+      if(pd.life>1){
+        pd.life=0;
+        pd.phi=Math.random()*Math.PI*2;
+        pd.theta=Math.random()*Math.PI;
+        pd.r=1.05;
+      }
+      pd.r+=0.001;
+      if(pd.r>1.4){pd.r=1.05;pd.life=0;}
+      pd.phi+=pd.vPhi;
+      pp.array[i*3]  =pd.r*Math.sin(pd.theta)*Math.cos(pd.phi);
+      pp.array[i*3+1]=pd.r*Math.cos(pd.theta);
+      pp.array[i*3+2]=pd.r*Math.sin(pd.theta)*Math.sin(pd.phi);
+    }
+    pp.needsUpdate=true;
 
     // Point light pulse
-    pl.intensity=isActive?0.5+0.3*Math.sin(t*3)*q:0.2;
+    pl1.intensity=isActive?0.6+0.35*Math.sin(t*2.5)*q:0.25;
+    pl2.intensity=isActive?0.4+0.2*Math.sin(t*1.7+1)*q:0.15;
 
     renderer.render(scene,camera);
   }
@@ -146,7 +248,9 @@ canvas{display:block;width:100%;height:100%}
 
   window.addEventListener('resize',function(){
     W=window.innerWidth;H=window.innerHeight;
-    renderer.setSize(W,H);camera.aspect=W/H;camera.updateProjectionMatrix();
+    renderer.setSize(W,H);
+    camera.aspect=W/H;
+    camera.updateProjectionMatrix();
   });
 
   if(typeof BrainNative!='undefined')BrainNative.onBrainReady();

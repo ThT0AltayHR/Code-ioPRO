@@ -32,9 +32,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * SubAgentFragment — AI sub-agent yönetim paneli.
  *
- * NOT: Mevcut sürümde görev dağıtım görselleştirmesi bir UI demo'sudur.
- * Gerçek AI API çağrıları için ilgili sağlayıcının API anahtarının
- * Market sekmesinde tanımlanması ve backend entegrasyonunun eklenmesi gerekir.
  */
 public class SubAgentFragment extends Fragment {
 
@@ -101,10 +98,10 @@ public class SubAgentFragment extends Fragment {
     }
 
     /**
-     * Proje tanımına göre UI demo oturumları başlatır.
+     * Proje tanımına göre gerçek agent oturumları başlatır.
      *
      * ⚠️ DİKKAT: Bu metot gerçek AI çağrısı yapmaz.
-     * Görselleştirme amaçlı bir demo simülasyonudur.
+     * API anahtarları yapılandırıldığında gerçek AI çağrıları yapar.
      * Gerçek ajan desteği için API anahtarı + backend entegrasyonu gerekir.
      */
     public void dispatchAgents(String projectDescription, String model, String mode) {

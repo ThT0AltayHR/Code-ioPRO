@@ -258,7 +258,7 @@ public class AiMarketFragment extends Fragment {
             result.put("providers", providers);
             result.put("activeProvider", requireActivity()
                 .getSharedPreferences("codeio_prefs", Context.MODE_PRIVATE)
-                .getString("active_provider", "duckduckgo"));
+                .getString("active_provider", "m-ai"));
             result.put("activeModel", requireActivity()
                 .getSharedPreferences("codeio_prefs", Context.MODE_PRIVATE)
                 .getString("active_model", "claude-haiku-4-2"));
@@ -346,7 +346,7 @@ public class AiMarketFragment extends Fragment {
         @JavascriptInterface
         public String getActiveProvider() {
             return requireActivity().getSharedPreferences("codeio_prefs", Context.MODE_PRIVATE)
-                .getString("active_provider", "duckduckgo");
+                .getString("active_provider", "m-ai");
         }
 
         @JavascriptInterface

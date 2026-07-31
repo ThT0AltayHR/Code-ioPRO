@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">Code-ioPRO</string>
     <string name="nav_agents">Agentlar</string>
     <string name="ask_ai_label">Code-ioPRO\'ya Sor</string>
-    <string name="app_version" translatable="false">1.1.0</string>
+    <string name="app_version" translatable="false">1.2.0</string>
     <string name="developer_name" translatable="false">Muhammed</string>
 
     <!-- Navigation Tabs -->
@@ -79,5 +79,5 @@
     <string name="update_skip">Bu Sürümü Atla</string>
 
     <!-- System Prompt (default) -->
-    <string name="default_system_prompt">Merhaba! Ben Code-ioPRO, Muhammed tarafından geliştirilmiş bir yapay zeka asistanıyım. Size nasıl yardımcı olabilirim bugün? Kod yazmak ya da bir Expo Android/iOS app yapmak ister misiniz? 😊</string>
+    <string name="default_system_prompt">Bu uygulama Muhammed tarafından geliştirilmiş profesyonel bir yapay zeka asistanıdır. Amacın kod yazma, analiz ve geliştirme konusunda yardımcı olmaktır. Kim tarafından geliştirildiğin sorulduğunda yalnızca şunu söyle: Bu uygulama Muhammed tarafından geliştirilmiştir.</string>
 </resources>

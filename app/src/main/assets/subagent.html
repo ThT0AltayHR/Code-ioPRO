@@ -144,8 +144,8 @@ function dispatch(){
   if(typeof AgentBridge!='undefined'){
     AgentBridge.dispatchProject(desc,model,currentMode);
   } else {
-    // Demo mode
-    simulateAgents(desc,model,currentMode);
+    // AgentBridge not ready yet
+    console.warn('AgentBridge not initialized');
   }
 }
 
@@ -224,23 +224,7 @@ window.initAgentUI=function(model,mode,sessionsJson){
 };
 window.updateSessions=updateSessions;
 
-// Demo simulation
-function simulateAgents(desc,model,mode){
-  var count=desc.split(' ').length<20?2:3;
-  sessions=[
-    {id:'a1',role:'Ana Agent (Orkestra)',model:model,status:'planning',currentTask:'Proje analiz ediliyor...',filesCreated:0,logs:['📋 Proje alındı']},
-    {id:'a2',role:'Kod Yazıcı',model:'gpt-4o-mini',status:'waiting',currentTask:'Ana agent bekleniyor...',filesCreated:0,logs:[]}
-  ];
-  if(count>2)sessions.push({id:'a3',role:'Test & Fix',model:'gemma-2-27b-it',status:'waiting',currentTask:'Hazır',filesCreated:0,logs:[]});
-  renderSessions();
-  setTimeout(function(){
-    sessions[0].status='running';sessions[0].currentTask='Sistem promptu yazılıyor';
-    sessions[0].logs.push('🧠 Prompt oluşturuluyor...');renderSessions();
-  },800);
-  setTimeout(function(){
-    sessions[1].status='running';sessions[1].logs.push('🚀 Göreve başlandı');renderSessions();
-  },2000);
-}
+
 </script>
 </body>
 </html>

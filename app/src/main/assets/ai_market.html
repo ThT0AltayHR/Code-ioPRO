@@ -205,7 +205,7 @@ window.loadMarket = function(data){
 
 function renderBanner(provider, model){
   var el = document.getElementById('active-banner-container');
-  if(!provider || provider === 'duckduckgo') { el.innerHTML = ''; return; }
+  if(!provider) { el.innerHTML = ''; return; }
   var p = allProviders.find(function(x){return x.id===provider;});
   el.innerHTML =
     '<div class="active-banner">' +
