@@ -1,47 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Code-ioPRO — Replit-inspired Design System -->
-    <color name="bg_primary">#0E1019</color>
-    <color name="bg_secondary">#141824</color>
-    <color name="bg_card">#1C2232</color>
-    <color name="bg_input">#1A2030</color>
-    <color name="bg_bottom_nav">#0B0F1A</color>
+    <!-- CODEX PRO — Deep Space Blue Theme -->
+    <color name="bg_primary">#07090F</color>
+    <color name="bg_secondary">#0C1020</color>
+    <color name="bg_card">#0F1627</color>
+    <color name="bg_input">#0A1020</color>
+    <color name="bg_bottom_nav">#07090F</color>
+    <color name="bg_sidebar">#070B14</color>
+    <color name="bg_header">#0A0E1A</color>
 
-    <!-- Accent — Replit Orange -->
-    <color name="accent">#F26207</color>
-    <color name="accent_alpha">#33F26207</color>
-    <color name="accent_dark">#C04D00</color>
-    <color name="accent_green">#00D26A</color>
+    <!-- Accent — Electric Blue -->
+    <color name="accent">#1E64FF</color>
+    <color name="accent_alpha">#331E64FF</color>
+    <color name="accent_dark">#1245CC</color>
+    <color name="accent_green">#22C55E</color>
     <color name="accent_purple">#8A63D2</color>
-    <color name="accent_red">#FF4444</color>
-    <color name="accent_yellow">#F5B731</color>
-    <color name="accent_blue">#0EA5E9</color>
+    <color name="accent_red">#EF4444</color>
+    <color name="accent_yellow">#F59E0B</color>
+    <color name="accent_orange">#F97316</color>
+    <color name="accent_cyan">#00BEFF</color>
 
     <!-- Text Colors -->
-    <color name="text_primary">#F0F2F5</color>
-    <color name="text_secondary">#7E8A9E</color>
-    <color name="text_hint">#3D4A5C</color>
-    <color name="text_code">#F26207</color>
+    <color name="text_primary">#D8E4FF</color>
+    <color name="text_secondary">#566C8E</color>
+    <color name="text_hint">#2D3A52</color>
+    <color name="text_code">#00BEFF</color>
 
     <!-- UI Elements -->
-    <color name="divider">#1A2232</color>
-    <color name="border">#252E42</color>
-    <color name="surface">#141824</color>
-    <color name="surface_variant">#1C2232</color>
+    <color name="divider">#0F1627</color>
+    <color name="border">#1A2640</color>
+    <color name="surface">#0C1020</color>
+    <color name="surface_variant">#0F1627</color>
 
-    <!-- Bottom Nav -->
-    <color name="bottom_nav_selected">#F26207</color>
-    <color name="bottom_nav_unselected">#3D4A5C</color>
+    <!-- Sidebar -->
+    <color name="sidebar_active_bg">#1A2A50</color>
+    <color name="sidebar_active_border">#1E64FF</color>
+    <color name="sidebar_item_text">#8A9EC0</color>
+    <color name="sidebar_section_text">#3D5070</color>
+
+    <!-- Bottom Nav (kept for compat, not shown) -->
+    <color name="bottom_nav_selected">#1E64FF</color>
+    <color name="bottom_nav_unselected">#2D3A52</color>
 
     <!-- Status -->
-    <color name="status_bar">#0B0F1A</color>
-    <color name="nav_bar">#0B0F1A</color>
+    <color name="status_bar">#07090F</color>
+    <color name="nav_bar">#07090F</color>
 
     <!-- Chat Modes -->
     <color name="mode_voice">#8A63D2</color>
-    <color name="mode_chat">#0EA5E9</color>
-    <color name="mode_code">#00D26A</color>
-    <color name="mode_ai">#F26207</color>
+    <color name="mode_chat">#00BEFF</color>
+    <color name="mode_code">#22C55E</color>
+    <color name="mode_ai">#F97316</color>
 
     <!-- File Type Colors -->
     <color name="file_python">#3776AB</color>
@@ -50,18 +59,18 @@
     <color name="file_kotlin">#7F52FF</color>
     <color name="file_html">#E34F26</color>
     <color name="file_css">#1572B6</color>
-    <color name="file_json">#F26207</color>
-    <color name="file_md">#F0F2F5</color>
-    <color name="file_shell">#00D26A</color>
-    <color name="file_generic">#7E8A9E</color>
-    <color name="file_folder">#F5B731</color>
+    <color name="file_json">#1E64FF</color>
+    <color name="file_md">#D8E4FF</color>
+    <color name="file_shell">#22C55E</color>
+    <color name="file_generic">#566C8E</color>
+    <color name="file_folder">#F59E0B</color>
 
-    <!-- Shell/Terminal -->
-    <color name="terminal_bg">#060A0F</color>
-    <color name="terminal_text">#00D26A</color>
-    <color name="terminal_prompt">#F26207</color>
+    <!-- Terminal -->
+    <color name="terminal_bg">#03050A</color>
+    <color name="terminal_text">#22C55E</color>
+    <color name="terminal_prompt">#1E64FF</color>
 
     <!-- Transparent -->
     <color name="transparent">#00000000</color>
-    <color name="dim_background">#A0000000</color>
+    <color name="dim_background">#B0000000</color>
 </resources>

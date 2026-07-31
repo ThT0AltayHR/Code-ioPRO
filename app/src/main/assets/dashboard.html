@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dashboard — CODEX PRO</title>
+<style>
+:root {
+  --bg: #07090F;
+  --bg2: #0C1020;
+  --card: #0F1627;
+  --card2: #131E30;
+  --border: #1A2640;
+  --accent: #1E64FF;
+  --cyan: #00BEFF;
+  --green: #22C55E;
+  --orange: #F97316;
+  --purple: #8A63D2;
+  --red: #EF4444;
+  --yellow: #F59E0B;
+  --txt: #D8E4FF;
+  --txt2: #566C8E;
+  --txt3: #3D5070;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { width: 100%; height: 100%; background: var(--bg); }
+body {
+  color: var(--txt);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  font-size: 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ── Brain section ── */
+.brain-section {
+  position: relative;
+  width: 100%;
+  height: 230px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 55% 45%, #070E28 0%, #050810 60%, #07090F 100%);
+}
+#brain-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.brain-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 20px 16px 14px;
+  background: linear-gradient(0deg, rgba(7,9,15,0.98) 0%, rgba(7,9,15,0.7) 50%, transparent 100%);
+}
+.greeting {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--txt);
+  letter-spacing: -0.3px;
+}
+.greeting-sub {
+  font-size: 13px;
+  color: var(--txt2);
+  margin-top: 4px;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 14px;
+  overflow-x: auto;
+  background: var(--bg);
+}
+.actions::-webkit-scrollbar { display: none; }
+.action-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--txt);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s, opacity .12s;
+  white-space: nowrap;
+}
+.action-btn:active { opacity: .75; transform: scale(.97); }
+.action-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.action-btn .icon { font-size: 14px; }
+
+/* ── Stats grid ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+}
+.stat-card.blue::before  { background: var(--accent); }
+.stat-card.cyan::before  { background: var(--cyan); }
+.stat-card.green::before { background: var(--green); }
+.stat-card.purple::before{ background: var(--purple); }
+.stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--txt2);
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--txt);
+  line-height: 1;
+}
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── Panel sections ── */
+.panel {
+  padding: 0 14px 14px;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.panel-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--txt2);
+}
+.panel-action {
+  font-size: 11px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+/* ── Model list ── */
+.model-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.model-item.active {
+  background: rgba(30,100,255,.08);
+  border-color: rgba(30,100,255,.4);
+}
+.model-item:active { opacity: .75; }
+.model-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.model-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--txt);
+}
+.model-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(30,100,255,.15);
+  color: var(--accent);
+  border: 1px solid rgba(30,100,255,.3);
+  border-radius: 5px;
+}
+.add-model-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--txt2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 6px;
+  transition: border-color .15s, color .15s;
+}
+.add-model-btn:active { opacity: .7; }
+
+/* ── Agent list ── */
+.agent-item {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.agent-item:last-child { border-bottom: none; }
+.agent-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.agent-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.agent-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--txt);
+}
+.agent-status {
+  font-size: 10px;
+  color: var(--txt2);
+  margin-right: 4px;
+}
+.agent-pct {
+  font-size: 11px;
+  color: var(--txt2);
+  font-family: monospace;
+  min-width: 28px;
+  text-align: right;
+}
+.bar-bg {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .8s ease;
+}
+.wave-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+}
+.wave-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--green);
+  animation: wave 1s ease-in-out infinite;
+}
+.wave-bar:nth-child(1) { animation-delay: 0s; }
+.wave-bar:nth-child(2) { animation-delay: .1s; }
+.wave-bar:nth-child(3) { animation-delay: .2s; }
+.wave-bar:nth-child(4) { animation-delay: .3s; }
+.wave-bar:nth-child(5) { animation-delay: .4s; }
+@keyframes wave { 0%,100%{height:4px} 50%{height:14px} }
+
+/* ── Bottom padding ── */
+.bottom-pad { height: 20px; }
+</style>
+</head>
+<body>
+
+<!-- Brain section -->
+<div class="brain-section">
+  <canvas id="brain-canvas"></canvas>
+  <div class="brain-overlay">
+    <div class="greeting">Merhaba Muhammed 👋</div>
+    <div class="greeting-sub">Bugün ne geliştirmek istersin?</div>
+  </div>
+</div>
+
+<!-- Actions -->
+<div class="actions">
+  <div class="action-btn primary" onclick="goNewProject()">
+    <span class="icon">📋</span> Yeni Proje Oluştur
+  </div>
+  <div class="action-btn" onclick="goUploadFile()">
+    <span class="icon">📤</span> Dosya Yükle
+  </div>
+  <div class="action-btn" onclick="goPlanWithAi()">
+    <span class="icon">🧠</span> AI ile Planla
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card blue">
+    <div class="stat-label">Toplam Proje</div>
+    <div class="stat-value">12</div>
+  </div>
+  <div class="stat-card cyan">
+    <div class="stat-label">Toplam Dosya</div>
+    <div class="stat-value">842</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-label">Toplam Kod Satırı</div>
+    <div class="stat-value" style="font-size:20px">1.2M+</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Çalışan Agent</div>
+    <div class="stat-row">
+      <div class="stat-dot"></div>
+      <div class="stat-value">8</div>
+    </div>
+  </div>
+</div>
+
+<!-- Model Manager -->
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">Model Yöneticisi</div>
+    <div class="panel-action" onclick="goMarket()">+ Ekle</div>
+  </div>
+
+  <div class="model-item active" id="model-gpt4o" onclick="selectModel('gpt-4o', this)">
+    <div class="model-dot" style="background:#22C55E"></div>
+    <div class="model-name">GPT-4o</div>
+    <div class="model-badge">Aktif</div>
+  </div>
+  <div class="model-item" onclick="selectModel('claude-3-5-sonnet-20241022', this)">
+    <div class="model-dot" style="background:#F97316"></div>
+    <div class="model-name">Claude 3.5 Sonnet</div>
+  </div>
+  <div class="model-item" onclick="selectModel('claude-3-haiku-20240307', this)">
+    <div class="model-dot" style="background:#F97316"></div>
+    <div class="model-name">Claude 3 Haiku</div>
+  </div>
+  <div class="model-item" onclick="selectModel('gpt-4-turbo', this)">
+    <div class="model-dot" style="background:#22C55E"></div>
+    <div class="model-name">GPT-4.0 Turbo</div>
+  </div>
+  <div class="model-item" onclick="selectModel('gpt-4o-mini', this)">
+    <div class="model-dot" style="background:#566C8E"></div>
+    <div class="model-name">GPT Nano</div>
+  </div>
+  <div class="model-item" onclick="selectModel('gemini-1.5-pro', this)">
+    <div class="model-dot" style="background:#1E64FF"></div>
+    <div class="model-name">Gemini 1.5 Pro</div>
+  </div>
+  <div class="model-item" onclick="selectModel('mistral-large-latest', this)">
+    <div class="model-dot" style="background:#EF4444"></div>
+    <div class="model-name">Mistral Large</div>
+  </div>
+
+  <div class="add-model-btn" onclick="goMarket()">+ Model Ekle</div>
+</div>
+
+<!-- Sub Agent Status -->
+<div class="panel">
+  <div class="panel-header">
+    <div class="panel-title">Sub Agent Durumları</div>
+    <div class="panel-action" onclick="goAgents()">Tümü →</div>
+  </div>
+  <div id="agent-list"></div>
+</div>
+
+<div class="bottom-pad"></div>
+
+<script>
+// ── Brain canvas animation ────────────────────────────────────────────────
+(function () {
+  var canvas = document.getElementById('brain-canvas');
+  var ctx = canvas.getContext('2d');
+  var W, H, nodes = [], t = 0;
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    buildNodes();
+  }
+
+  function buildNodes() {
+    nodes = [];
+    var count = 72;
+    var cx = W * 0.58, cy = H * 0.44;
+    for (var i = 0; i < count; i++) {
+      var angle = Math.random() * Math.PI * 2;
+      // Distribute in ellipse (brain shape)
+      var rX = W * 0.28 * (0.35 + Math.random() * 0.65);
+      var rY = H * 0.35 * (0.35 + Math.random() * 0.65);
+      var x = cx + Math.cos(angle) * rX;
+      var y = cy + Math.sin(angle) * rY;
+      nodes.push({
+        x: x, y: y,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: (Math.random() - 0.5) * 0.14,
+        r: 1.2 + Math.random() * 2.2,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.03 + Math.random() * 0.03,
+        cx: cx, cy: cy,
+        rX: rX, rY: rY
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.012;
+
+    // Atmospheric glow
+    var grd = ctx.createRadialGradient(W*0.58, H*0.42, 0, W*0.58, H*0.42, H*0.52);
+    grd.addColorStop(0,   'rgba(10,50,160,0.18)');
+    grd.addColorStop(0.4, 'rgba(0,80,200,0.08)');
+    grd.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+
+    // Outer brain outline glow
+    ctx.beginPath();
+    ctx.ellipse(W*0.58, H*0.43, W*0.29, H*0.34, -0.08, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(0,130,255,0.06)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Connections
+    for (var i = 0; i < nodes.length; i++) {
+      for (var j = i + 1; j < nodes.length; j++) {
+        var dx = nodes[j].x - nodes[i].x;
+        var dy = nodes[j].y - nodes[i].y;
+        var d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 75) {
+          var a = (1 - d/75) * 0.28;
+          var pulse = (Math.sin(t + i*0.6) + 1) * 0.5;
+          var blue = Math.floor(160 + pulse*80);
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = 'rgba(30,' + blue + ',255,' + (a * (0.5 + pulse*0.5)) + ')';
+          ctx.lineWidth = 0.4 + pulse * 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Nodes
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      n.phase += n.speed;
+      var pulse = (Math.sin(n.phase) + 1) * 0.5;
+
+      // Slow drift
+      n.x += n.vx;
+      n.y += n.vy;
+      // Keep inside ellipse
+      var dx = n.x - n.cx, dy = n.y - n.cy;
+      var norm = (dx*dx)/(n.rX*n.rX) + (dy*dy)/(n.rY*n.rY);
+      if (norm > 1) { n.vx *= -0.8; n.vy *= -0.8; }
+
+      // Glow ring
+      var gr = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 4);
+      gr.addColorStop(0,   'rgba(50,150,255,' + (0.55 + pulse*0.35) + ')');
+      gr.addColorStop(0.5, 'rgba(0,100,220,' + (0.18 + pulse*0.12) + ')');
+      gr.addColorStop(1,   'rgba(0,60,180,0)');
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * (1.6 + pulse * 0.5), 0, Math.PI*2);
+      ctx.fillStyle = gr;
+      ctx.fill();
+
+      // Core dot
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r * (0.7 + pulse*0.3), 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(120,200,255,' + (0.7 + pulse*0.3) + ')';
+      ctx.fill();
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
+// ── Agents ───────────────────────────────────────────────────────────────
+var AGENTS = [
+  { name: 'Analiz Agent1',   status: 'Çalışıyor', pct: 86, color: '#22C55E' },
+  { name: 'Kod Agent1',      status: 'Çalışıyor', pct: 71, color: '#22C55E' },
+  { name: 'Test Agent1',     status: 'Beklemede',  pct: 0,  color: '#566C8E' },
+  { name: 'Refactor Agent1', status: 'Beklemede',  pct: 40, color: '#566C8E' },
+  { name: 'Deploy Agent1',   status: 'Beklemede',  pct: 50, color: '#566C8E' },
+  { name: 'Sesli Agent',     status: 'Aktif',      pct: -1, color: '#22C55E' },
+  { name: 'Terminal Agent1', status: 'Çalışıyor', pct: 98, color: '#22C55E' },
+];
+
+(function renderAgents() {
+  var el = document.getElementById('agent-list');
+  AGENTS.forEach(function (a) {
+    var div = document.createElement('div');
+    div.className = 'agent-item';
+
+    var right = a.pct === -1
+      ? '<div class="wave-bars"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>'
+      : '<span class="agent-pct">%' + a.pct + '</span>';
+
+    var bar = a.pct >= 0
+      ? '<div class="bar-bg"><div class="bar-fill" style="width:' + a.pct + '%;background:' + a.color + '"></div></div>'
+      : '';
+
+    div.innerHTML =
+      '<div class="agent-row">' +
+        '<div class="agent-dot" style="background:' + a.color + '"></div>' +
+        '<div class="agent-name">' + a.name + '</div>' +
+        '<span class="agent-status">' + a.status + '</span>' +
+        right +
+      '</div>' + bar;
+
+    el.appendChild(div);
+  });
+})();
+
+// ── Model selection ───────────────────────────────────────────────────────
+function selectModel(id, el) {
+  document.querySelectorAll('.model-item').forEach(function (m) {
+    m.classList.remove('active');
+    var b = m.querySelector('.model-badge');
+    if (b) b.remove();
+  });
+  el.classList.add('active');
+  var badge = document.createElement('div');
+  badge.className = 'model-badge';
+  badge.textContent = 'Aktif';
+  el.appendChild(badge);
+  if (typeof Android !== 'undefined') Android.setModel(id);
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function goNewProject()  { if (typeof Android !== 'undefined') Android.navigateToFiles(); }
+function goUploadFile()  { if (typeof Android !== 'undefined') Android.navigateToFiles(); }
+function goPlanWithAi() { if (typeof Android !== 'undefined') Android.navigateToChat();  }
+function goMarket()      { if (typeof Android !== 'undefined') Android.navigateToMarket(); }
+function goAgents()      { if (typeof Android !== 'undefined') Android.navigateToAgents(); }
+
+// ── Init: sync model from Android ────────────────────────────────────────
+(function () {
+  try {
+    if (typeof Android !== 'undefined') {
+      var active = Android.getActiveModel();
+      if (active) {
+        document.querySelectorAll('.model-item').forEach(function (m) { m.classList.remove('active'); var b=m.querySelector('.model-badge');if(b)b.remove(); });
+        // find the matching row (crude match)
+        var map = { 'gpt-4o': 0, 'claude-3-5-sonnet': 1, 'claude-3-haiku': 2, 'gpt-4-turbo': 3, 'gpt-4o-mini': 4, 'gemini-1.5-pro': 5, 'mistral-large-latest': 6 };
+        var rows = document.querySelectorAll('.model-item');
+        var idx = 0;
+        for (var k in map) { if (active.indexOf(k) !== -1) { idx = map[k]; break; } }
+        if (rows[idx]) { rows[idx].classList.add('active'); var b=document.createElement('div'); b.className='model-badge'; b.textContent='Aktif'; rows[idx].appendChild(b); }
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

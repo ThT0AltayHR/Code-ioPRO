@@ -1,204 +1,536 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<!-- CODEX PRO — DrawerLayout: sol sidebar + ana içerik -->
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_primary">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
+    <!-- ── Ana içerik (header + fragment) ── -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="66dp" />
+        android:orientation="vertical"
+        android:background="@color/bg_primary">
 
-    <!-- Bottom Navigation — Replit-style pill bar -->
-    <LinearLayout
-        android:id="@+id/bottom_navigation_custom"
-        android:layout_width="match_parent"
-        android:layout_height="66dp"
-        android:orientation="horizontal"
-        android:background="@color/bg_bottom_nav"
-        android:layout_gravity="bottom"
-        android:elevation="12dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="6dp"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp">
-
-        <!-- Chat -->
+        <!-- HEADER BAR -->
         <LinearLayout
-            android:id="@+id/nav_chat"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/nav_chat_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_nav_agent"
-                android:scaleType="fitCenter" />
-            <TextView
-                android:id="@+id/nav_chat_text"
+            android:id="@+id/header_bar"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:orientation="horizontal"
+            android:background="@color/bg_header"
+            android:gravity="center_vertical"
+            android:paddingStart="4dp"
+            android:paddingEnd="8dp"
+            android:elevation="8dp">
+
+            <!-- Hamburger -->
+            <ImageButton
+                android:id="@+id/btn_menu"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_menu"
+                android:tint="@color/text_secondary"
+                android:contentDescription="Menü"
+                android:padding="10dp" />
+
+            <!-- Logo: 🚀 CODEX PRO -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/nav_chat"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:layout_marginTop="3dp"
-                android:letterSpacing="0.02" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginStart="2dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🚀"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_app_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CODEX PRO"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace"
+                    android:layout_marginStart="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" v2.0.0"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <!-- Spacer -->
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+
+            <!-- Header Tab: Sohbet -->
+            <TextView
+                android:id="@+id/htab_chat"
+                android:layout_width="wrap_content"
+                android:layout_height="54dp"
+                android:text="Sohbet"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground" />
+
+            <!-- Header Tab: Kod Editörü -->
+            <TextView
+                android:id="@+id/htab_editor"
+                android:layout_width="wrap_content"
+                android:layout_height="54dp"
+                android:text="Kod Editörü"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground" />
+
+            <!-- Header Tab: AI Market -->
+            <TextView
+                android:id="@+id/htab_market"
+                android:layout_width="wrap_content"
+                android:layout_height="54dp"
+                android:text="AI Market"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground" />
+
+            <!-- Header Tab: Ayarlar -->
+            <TextView
+                android:id="@+id/htab_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="54dp"
+                android:text="Ayarlar"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground" />
+
+            <!-- User avatar -->
+            <LinearLayout
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/avatar_bg"
+                android:layout_marginStart="6dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="M"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
         </LinearLayout>
 
-        <!-- Dosyalar -->
-        <LinearLayout
-            android:id="@+id/nav_files"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/nav_files_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_nav_files"
-                android:scaleType="fitCenter" />
-            <TextView
-                android:id="@+id/nav_files_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/nav_files"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:layout_marginTop="3dp"
-                android:letterSpacing="0.02" />
-        </LinearLayout>
+        <!-- FRAGMENT CONTAINER -->
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-        <!-- Terminal -->
+        <!-- STATUS BAR -->
         <LinearLayout
-            android:id="@+id/nav_shell"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/nav_shell_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_nav_shell"
-                android:scaleType="fitCenter" />
-            <TextView
-                android:id="@+id/nav_shell_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/nav_shell"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:layout_marginTop="3dp"
-                android:letterSpacing="0.02" />
-        </LinearLayout>
+            android:id="@+id/status_bar"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:orientation="horizontal"
+            android:background="@color/bg_secondary"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
 
-        <!-- AI Market -->
-        <LinearLayout
-            android:id="@+id/nav_market"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/nav_market_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_nav_market"
-                android:scaleType="fitCenter" />
+            <!-- Green dot + HAZIR -->
+            <View
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:background="@drawable/status_dot_green" />
             <TextView
-                android:id="@+id/nav_market_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/nav_market"
+                android:text=" HAZIR"
+                android:textColor="@color/accent_green"
                 android:textSize="10sp"
-                android:maxLines="1"
-                android:layout_marginTop="3dp"
-                android:letterSpacing="0.02" />
-        </LinearLayout>
+                android:fontFamily="monospace" />
 
-        <!-- Secrets -->
-        <LinearLayout
-            android:id="@+id/nav_secrets"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/nav_secrets_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_nav_secrets"
-                android:scaleType="fitCenter" />
-            <TextView
-                android:id="@+id/nav_secrets_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/nav_secrets"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:layout_marginTop="3dp"
-                android:letterSpacing="0.02" />
-        </LinearLayout>
+            <View android:layout_width="1dp" android:layout_height="12dp"
+                android:background="@color/border" android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
 
-        <!-- Agents -->
-        <LinearLayout
-            android:id="@+id/nav_agents"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true">
-            <ImageView
-                android:id="@+id/nav_agents_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_nav_agent2"
-                android:scaleType="fitCenter" />
             <TextView
-                android:id="@+id/nav_agents_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/nav_agents"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:layout_marginTop="3dp"
-                android:letterSpacing="0.02" />
+                android:text="Proje: Code-ioPRO"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp" />
+
+            <View android:layout_width="1dp" android:layout_height="12dp"
+                android:background="@color/border" android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Branch: main"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp" />
+
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8 Agent Aktif"
+                android:textColor="@color/accent_green"
+                android:textSize="10sp" />
+
         </LinearLayout>
 
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <!-- ── Sol Sidebar (NavigationView) ── -->
+    <ScrollView
+        android:id="@+id/sidebar_scroll"
+        android:layout_width="248dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/bg_sidebar"
+        android:scrollbars="none"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:id="@+id/sidebar_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
+
+            <!-- Sidebar header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp"
+                android:background="@color/bg_header">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🚀 CODEX PRO"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="monospace" />
+
+                <ImageButton
+                    android:id="@+id/btn_close_drawer"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow_back"
+                    android:tint="@color/text_secondary"
+                    android:contentDescription="Kapat"
+                    android:padding="8dp" />
+            </LinearLayout>
+
+            <!-- Separator -->
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/border" />
+
+            <!-- Section: PROJE -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="PROJE"
+                    android:textColor="@color/sidebar_section_text"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Code-ioPRO"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Dashboard -->
+            <LinearLayout android:id="@+id/sidebar_dashboard"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="16dp" android:paddingEnd="16dp"
+                android:background="@color/sidebar_active_bg"
+                android:clickable="true" android:focusable="true">
+                <View android:layout_width="3dp" android:layout_height="24dp"
+                    android:background="@color/accent"
+                    android:layout_marginEnd="10dp" />
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="⊞" android:textColor="@color/accent" android:textSize="15sp" />
+                <TextView android:id="@+id/sidebar_dashboard_text"
+                    android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Dashboard" android:textColor="@color/accent"
+                    android:textSize="13sp" android:fontFamily="sans-serif-medium"
+                    android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Sohbet -->
+            <LinearLayout android:id="@+id/sidebar_chat"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="💬" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Sohbet" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Kod Editörü -->
+            <LinearLayout android:id="@+id/sidebar_editor"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="⌨" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Kod Editörü" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- AI Market -->
+            <LinearLayout android:id="@+id/sidebar_market"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="🤖" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="AI Market" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Terminal -->
+            <LinearLayout android:id="@+id/sidebar_shell"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="⬢" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Terminal" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Dosyalar -->
+            <LinearLayout android:id="@+id/sidebar_files"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="📁" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Dosyalar" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Görevler -->
+            <LinearLayout android:id="@+id/sidebar_tasks"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="✅" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Görevler" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Sub Agt'lar -->
+            <LinearLayout android:id="@+id/sidebar_agents"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="🧠" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Sub Agt'lar" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Veritabanı -->
+            <LinearLayout android:id="@+id/sidebar_db"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="🗄" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Veritabanı" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- API -->
+            <LinearLayout android:id="@+id/sidebar_api"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="🔑" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="API" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Ayarlar -->
+            <LinearLayout android:id="@+id/sidebar_settings"
+                android:layout_width="match_parent" android:layout_height="40dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="⚙" android:textSize="14sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Ayarlar" android:textColor="@color/sidebar_item_text"
+                    android:textSize="13sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <!-- Separator -->
+            <View android:layout_width="match_parent" android:layout_height="1dp"
+                android:background="@color/border" android:layout_marginTop="8dp" />
+
+            <!-- Section: KISAYOLLAR -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="KISAYOLLAR"
+                android:textColor="@color/sidebar_section_text"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.12"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="14dp"
+                android:paddingBottom="6dp" />
+
+            <LinearLayout android:id="@+id/shortcut_new_project"
+                android:layout_width="match_parent" android:layout_height="36dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="+" android:textColor="@color/text_secondary" android:textSize="15sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Yeni Proje" android:textColor="@color/sidebar_item_text"
+                    android:textSize="12sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/shortcut_open_file"
+                android:layout_width="match_parent" android:layout_height="36dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="⤷" android:textColor="@color/text_secondary" android:textSize="15sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Dosya Aç" android:textColor="@color/sidebar_item_text"
+                    android:textSize="12sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/shortcut_zip"
+                android:layout_width="match_parent" android:layout_height="36dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="📦" android:textSize="12sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Zip Oluştur" android:textColor="@color/sidebar_item_text"
+                    android:textSize="12sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/shortcut_terminal"
+                android:layout_width="match_parent" android:layout_height="36dp"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:paddingStart="29dp" android:paddingEnd="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true" android:focusable="true">
+                <TextView android:layout_width="18dp" android:layout_height="wrap_content"
+                    android:text="⬡" android:textColor="@color/text_secondary" android:textSize="13sp" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="Terminal Aç" android:textColor="@color/sidebar_item_text"
+                    android:textSize="12sp" android:layout_marginStart="10dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -11,13 +11,12 @@ android {
         applicationId "com.codeioPRO.app"
         minSdk 31
         targetSdk 35
-        versionCode 17
-        versionName "1.3.0"
+        versionCode 20
+        versionName "2.0.0"
     }
 
     signingConfigs {
         release {
-            // 1) CI ortamı: ortam değişkenlerinden oku
             def envKey   = System.getenv("SIGNING_KEY_STORE_PATH")
             def envSP    = System.getenv("SIGNING_STORE_PASSWORD")
             def envAlias = System.getenv("SIGNING_KEY_ALIAS")
@@ -29,7 +28,6 @@ android {
                 keyAlias      = envAlias ?: "release"
                 keyPassword   = envKP ?: ""
             } else {
-                // 2) Yerel geliştirme: local.properties'den oku
                 def localProp = new Properties()
                 def localFile = rootProject.file('local.properties')
                 if (localFile.exists()) {
@@ -90,17 +88,14 @@ android {
 }
 
 dependencies {
-    // ── Core AndroidX ──────────────────────────────────────────────────────
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.webkit:webkit:1.12.1'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.fragment:fragment:1.8.6'
     implementation 'androidx.core:core:1.15.0'
+    implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
 
-    // ── Lifecycle — KRİTİK: tüm bileşenler aynı versiyonda sabitlendi ────
-    // Farklı lifecycle versiyonları ProcessLifecycleOwner$initializationListener
-    // NoClassDefFoundError'a yol açar. lifecycle-process özellikle gerekli.
     def lifecycle_version = "2.8.7"
     implementation "androidx.lifecycle:lifecycle-runtime:${lifecycle_version}"
     implementation "androidx.lifecycle:lifecycle-common:${lifecycle_version}"
@@ -109,25 +104,15 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata:${lifecycle_version}"
     implementation "androidx.lifecycle:lifecycle-common-java8:${lifecycle_version}"
 
-    // ── AndroidX Startup — KRİTİK ─────────────────────────────────────────
-    // lifecycle-process, InitializationProvider üzerinden başlar;
-    // bu bağımlılık olmadan startup çöker.
     implementation 'androidx.startup:startup-runtime:1.2.0'
-
-    // ── Biometric (lifecycle 2.8.x ile uyumlu stabil sürüm) ──────────────
     implementation 'androidx.biometric:biometric:1.2.0-alpha05'
 
-    // ── Room (SQLite) ──────────────────────────────────────────────────────
     implementation 'androidx.room:room-runtime:2.6.1'
     annotationProcessor 'androidx.room:room-compiler:2.6.1'
 
-    // ── UI Bileşenleri ────────────────────────────────────────────────────
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-    // ── JSON ──────────────────────────────────────────────────────────────
     implementation 'org.json:json:20240303'
-
-    // ── Preferences ───────────────────────────────────────────────────────
     implementation 'androidx.preference:preference:1.2.1'
 }

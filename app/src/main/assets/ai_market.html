@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>AI Marketi — Code-ioPRO</title>
+<title>AI Market — CODEX PRO</title>
 <style>
 :root{
-  --bg:#0E1019;--card:#141824;--card2:#1C2232;
-  --accent:#F26207;--green:#00D26A;--red:#FF4444;--yellow:#F5B731;--purple:#8A63D2;--blue:#0EA5E9;
-  --txt:#F0F2F5;--txt2:#7E8A9E;--border:#252E42;--input:#0B0F1A;
+  --bg:#07090F;--card:#0F1627;--card2:#131E30;
+  --accent:#1E64FF;--green:#22C55E;--red:#EF4444;--yellow:#F59E0B;--purple:#8A63D2;--cyan:#00BEFF;--orange:#F97316;
+  --txt:#D8E4FF;--txt2:#566C8E;--border:#1A2640;--input:#0A1020;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;}
 
-/* Search bar */
+/* Search */
 .search-wrap{
-  padding:12px 16px;background:var(--card);
+  padding:10px 14px;background:var(--bg);
   border-bottom:1px solid var(--border);
   position:sticky;top:0;z-index:10;
-  display:flex;flex-direction:column;gap:10px;
+  display:flex;flex-direction:column;gap:8px;
 }
 .search-box{
   display:flex;align-items:center;gap:8px;
@@ -28,94 +28,89 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 .search-box input{
   flex:1;background:none;border:none;color:var(--txt);font-size:13px;outline:none;
 }
-.search-box svg{width:16px;height:16px;opacity:.5;}
+.search-icon{opacity:.45;font-size:14px;}
 
 /* Filter chips */
-.filter-bar{
-  display:flex;overflow-x:auto;gap:8px;
-}
+.filter-bar{display:flex;overflow-x:auto;gap:7px;}
 .filter-bar::-webkit-scrollbar{display:none;}
-.filter-chip{
+.chip{
   background:var(--card2);border:1px solid var(--border);
   color:var(--txt2);border-radius:20px;padding:5px 12px;
-  font-size:12px;white-space:nowrap;cursor:pointer;flex-shrink:0;
-  transition:.15s;
+  font-size:11px;white-space:nowrap;cursor:pointer;flex-shrink:0;transition:.15s;
 }
-.filter-chip.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;}
-.filter-chip:active{opacity:.7;}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;}
+.chip:active{opacity:.7;}
 
-/* Provider grid */
-.providers-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:12px;padding:14px;
-}
-.provider-card{
+/* Grid */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px;}
+.card{
   background:var(--card);border:2px solid var(--border);
-  border-radius:16px;overflow:hidden;cursor:pointer;
+  border-radius:14px;overflow:hidden;cursor:pointer;
   transition:border-color .2s,transform .15s,box-shadow .2s;
-  animation:popIn .35s cubic-bezier(.34,1.56,.64,1) both;
+  animation:popIn .32s cubic-bezier(.34,1.56,.64,1) both;
 }
 @keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-.provider-card.active{border-color:var(--accent);box-shadow:0 0 12px rgba(242,98,7,.2);}
-.provider-card:active{transform:scale(.96);}
+.card.active-card{border-color:var(--accent);box-shadow:0 0 14px rgba(30,100,255,.18);}
+.card:active{transform:scale(.96);}
 
-/* Logo area — real styled logos */
-.provider-logo{
-  height:62px;display:flex;align-items:center;justify-content:center;
+/* Logo area */
+.logo-area{
+  height:60px;display:flex;align-items:center;justify-content:center;
   position:relative;overflow:hidden;
 }
-.logo-openai{ background:linear-gradient(135deg,#000 0%,#111 100%); }
-.logo-anthropic{ background:linear-gradient(135deg,#1A0E00 0%,#2D1A00 100%); }
-.logo-gemini{ background:linear-gradient(135deg,#0D1B4A 0%,#1A2E70 100%); }
-.logo-groq{ background:linear-gradient(135deg,#0A0A14 0%,#12122A 100%); }
-.logo-mistral{ background:linear-gradient(135deg,#0E1A0A 0%,#182A14 100%); }
-.logo-cohere{ background:linear-gradient(135deg,#1A0A1A 0%,#2E0A2E 100%); }
-.logo-openrouter{ background:linear-gradient(135deg,#0A0E14 0%,#101828 100%); }
-.logo-together{ background:linear-gradient(135deg,#0E0A00 0%,#1E1400 100%); }
-.logo-perplexity{ background:linear-gradient(135deg,#000A0E 0%,#001418 100%); }
-.logo-deepseek{ background:linear-gradient(135deg,#00060E 0%,#001020 100%); }
-.logo-custom{ background:linear-gradient(135deg,#0A0E1A 0%,#101828 100%); }
+/* Provider backgrounds */
+.logo-openai    {background:linear-gradient(135deg,#000 0%,#111 100%);}
+.logo-anthropic {background:linear-gradient(135deg,#1C0A00 0%,#2E1000 100%);}
+.logo-gemini    {background:linear-gradient(135deg,#06082A 0%,#0D1248 100%);}
+.logo-groq      {background:linear-gradient(135deg,#080014 0%,#140028 100%);}
+.logo-mistral   {background:linear-gradient(135deg,#100800 0%,#1E1000 100%);}
+.logo-cohere    {background:linear-gradient(135deg,#060E0A 0%,#0A1812 100%);}
+.logo-openrouter{background:linear-gradient(135deg,#060A10 0%,#0A1020 100%);}
+.logo-together  {background:linear-gradient(135deg,#0A0800 0%,#181000 100%);}
+.logo-perplexity{background:linear-gradient(135deg,#000A0C 0%,#001418 100%);}
+.logo-deepseek  {background:linear-gradient(135deg,#00040E 0%,#000C20 100%);}
+.logo-custom    {background:linear-gradient(135deg,#080A10 0%,#101428 100%);}
 
-/* Text logo styles */
+/* Logo text / SVG */
 .logo-text{
-  font-size:15px;font-weight:900;letter-spacing:-0.5px;
-  text-align:center;user-select:none;
+  font-weight:900;letter-spacing:-0.5px;text-align:center;
+  user-select:none;line-height:1;
 }
-.logo-text-openai{ color:#fff; font-family:sans-serif; }
-.logo-text-anthropic{ color:#CC785C; font-family:Georgia,serif; }
-.logo-text-gemini{ background:linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-family:sans-serif; }
-.logo-text-groq{ color:#F55036; font-family:monospace; font-size:18px; }
-.logo-text-mistral{ color:#FA520F; font-family:sans-serif; }
-.logo-text-cohere{ color:#39594D; font-family:sans-serif; color:#C3E88D; }
-.logo-text-openrouter{ color:#6366F1; font-family:monospace; }
-.logo-text-together{ color:#F5B731; font-family:sans-serif; }
-.logo-text-perplexity{ color:#20B2AA; font-family:sans-serif; }
-.logo-text-deepseek{ color:#4DA6FF; font-family:sans-serif; }
-.logo-text-custom{ color:var(--txt2); font-family:monospace; }
+/* Colors matching real brands */
+.lt-openai{color:#fff;font-size:13px;font-family:sans-serif;}
+.lt-anthropic{color:#CC785C;font-size:14px;font-family:Georgia,serif;letter-spacing:0.5px;}
+.lt-gemini{font-size:14px;font-family:sans-serif;background:linear-gradient(90deg,#4285F4,#EA4335,#FBBC05,#34A853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.lt-groq{color:#F55036;font-size:18px;font-family:monospace;font-weight:900;}
+.lt-mistral{color:#FA520F;font-size:14px;font-family:sans-serif;}
+.lt-cohere{color:#39D353;font-size:13px;font-family:sans-serif;}
+.lt-openrouter{color:#6366F1;font-size:12px;font-family:monospace;}
+.lt-together{color:#F5B731;font-size:13px;font-family:sans-serif;}
+.lt-perplexity{color:#20B2AA;font-size:13px;font-family:sans-serif;}
+.lt-deepseek{color:#4DA6FF;font-size:13px;font-family:sans-serif;}
+.lt-custom{color:var(--txt2);font-size:12px;font-family:monospace;}
 
-.provider-body{padding:8px 10px 12px;}
-.provider-name{font-size:12px;font-weight:700;color:var(--txt);text-align:center;}
-.provider-desc{font-size:10px;color:var(--txt2);text-align:center;margin-top:2px;line-height:1.3;}
-.provider-badges{display:flex;justify-content:center;gap:4px;margin-top:6px;flex-wrap:wrap;}
+/* Provider body */
+.prov-body{padding:8px 10px 12px;}
+.prov-name{font-size:12px;font-weight:700;color:var(--txt);text-align:center;}
+.prov-desc{font-size:10px;color:var(--txt2);text-align:center;margin-top:2px;line-height:1.3;}
+.prov-badges{display:flex;justify-content:center;gap:4px;margin-top:6px;flex-wrap:wrap;}
 .badge{border-radius:4px;padding:1px 6px;font-size:9px;font-weight:700;}
-.badge.free{background:rgba(0,210,106,.15);color:var(--green);border:1px solid rgba(0,210,106,.3);}
-.badge.paid{background:rgba(245,183,49,.1);color:var(--yellow);border:1px solid rgba(245,183,49,.25);}
-.badge.has-key{background:rgba(242,98,7,.15);color:var(--accent);border:1px solid rgba(242,98,7,.3);}
-.badge.active-badge{background:var(--accent);color:#fff;}
+.badge.free{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25);}
+.badge.paid{background:rgba(245,158,11,.08);color:var(--yellow);border:1px solid rgba(245,158,11,.2);}
+.badge.has-key{background:rgba(30,100,255,.12);color:var(--accent);border:1px solid rgba(30,100,255,.25);}
+.badge.active-badge{background:var(--accent);color:#fff;border-color:var(--accent);}
 
 /* Active banner */
 .active-banner{
-  margin:0 14px 14px;
-  background:rgba(242,98,7,.08);border:1px solid rgba(242,98,7,.3);
-  border-radius:12px;padding:12px;display:none;
-  animation:slideDown .3s ease-out;
+  margin:10px 14px 0;
+  background:rgba(30,100,255,.07);border:1px solid rgba(30,100,255,.25);
+  border-radius:12px;padding:10px 12px;display:none;
+  animation:slideDown .25s ease-out;
 }
-@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.active-banner-title{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
-.active-banner-row{display:flex;align-items:center;gap:10px;}
-.active-banner-icon{font-size:22px;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.active-banner-label{font-size:10px;color:var(--txt2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
 .active-banner-name{font-size:14px;font-weight:700;color:var(--txt);}
-.active-banner-model{font-size:11px;color:var(--accent);font-family:monospace;margin-top:1px;}
+.active-banner-model{font-size:11px;color:var(--accent);font-family:monospace;margin-top:2px;}
 
 /* Detail sheet */
 .sheet-bg{
@@ -124,119 +119,102 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 }
 .sheet-bg.open{display:flex;}
 .sheet{
-  background:var(--card);border-radius:24px 24px 0 0;
-  width:100%;max-height:88vh;overflow-y:auto;
-  animation:slideUp .25s cubic-bezier(.34,1.2,.64,1);
+  background:var(--card);border-radius:22px 22px 0 0;
+  width:100%;max-height:90vh;overflow-y:auto;
+  animation:slideUp .22s ease-out;
+  border-top:1px solid var(--border);
 }
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sheet-handle{width:36px;height:3px;background:var(--border);border-radius:3px;margin:12px auto 8px;}
-.sheet-header{padding:4px 16px 16px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);}
-.sheet-logo-area{
-  width:48px;height:48px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;
-}
-.sheet-info .sheet-title{font-size:18px;font-weight:700;}
-.sheet-info .sheet-subtitle{font-size:12px;color:var(--txt2);margin-top:2px;}
-.sheet-body{padding:16px;}
-.models-title{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
-.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
-.model-card{
-  background:var(--card2);border:1px solid var(--border);border-radius:10px;
-  padding:10px;cursor:pointer;transition:border-color .15s,background .15s;
-}
-.model-card:active{background:#252E42;}
-.model-card.selected{border-color:var(--accent);background:rgba(242,98,7,.05);}
-.model-name{font-size:11px;font-weight:600;color:var(--txt);font-family:monospace;}
-.model-tag{font-size:9px;color:var(--txt2);margin-top:2px;}
-.mode-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
-.mode-btn{
-  background:var(--card2);border:1px solid var(--border);
-  border-radius:12px;padding:12px 8px;text-align:center;cursor:pointer;
-  transition:.15s;
-}
-.mode-btn:active{opacity:.7;}
-.mode-btn.selected{border-color:var(--accent);background:rgba(242,98,7,.05);}
-.mode-icon{font-size:20px;margin-bottom:4px;}
-.mode-name{font-size:12px;font-weight:700;color:var(--txt);}
-.mode-desc{font-size:10px;color:var(--txt2);margin-top:2px;}
-.api-section{margin-bottom:16px;}
-.api-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.api-label span{font-size:12px;font-weight:600;color:var(--txt2);}
-.api-link{font-size:11px;color:var(--accent);text-decoration:none;}
-.api-section input{
-  width:100%;background:var(--input);border:1px solid var(--border);
-  border-radius:10px;padding:11px 14px;color:var(--txt);font-size:13px;
-  outline:none;font-family:monospace;
-}
-.api-section input:focus{border-color:var(--accent);}
-.sheet-actions{
-  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
-  padding:0 16px 28px;
-}
-.btn-sheet{
-  border:none;border-radius:12px;padding:12px 8px;
-  font-size:13px;font-weight:700;cursor:pointer;transition:.15s;
-}
-.btn-sheet.primary{background:var(--accent);color:#fff;}
-.btn-sheet.secondary{background:var(--card2);color:var(--txt2);border:1px solid var(--border);}
-.btn-sheet.use-chat{background:rgba(14,165,233,.15);color:var(--blue);border:1px solid rgba(14,165,233,.3);}
-.btn-sheet:active{opacity:.8;transform:scale(.97);}
+.sheet-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:10px auto 6px;}
+.sheet-header{padding:0 16px 14px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);}
+.sheet-logo-box{width:48px;height:48px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sheet-title{font-size:18px;font-weight:700;}
+.sheet-subtitle{font-size:12px;color:var(--txt2);margin-top:2px;}
+.sheet-body{padding:14px 16px;}
 
-/* Empty state */
-.empty-state{text-align:center;padding:40px 24px;color:var(--txt2);}
-.empty-icon{font-size:40px;margin-bottom:12px;}
-.empty-text{font-size:14px;font-weight:600;color:var(--txt);margin-bottom:6px;}
-.empty-sub{font-size:12px;line-height:1.5;}
+.s-section-title{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
+.model-chip{
+  background:var(--card2);border:1px solid var(--border);border-radius:10px;
+  padding:9px 10px;cursor:pointer;transition:border-color .15s;
+}
+.model-chip:active{background:#131E30;}
+.model-chip.selected{border-color:var(--accent);}
+.model-chip-name{font-size:11px;font-weight:600;color:var(--txt);font-family:monospace;}
+
+.mode-row{display:flex;gap:7px;margin-bottom:14px;}
+.mode-btn{
+  flex:1;padding:9px 6px;border-radius:10px;border:1px solid var(--border);
+  text-align:center;cursor:pointer;transition:border-color .15s;background:var(--card2);
+}
+.mode-btn.selected{border-color:var(--accent);}
+.mode-btn:active{opacity:.7;}
+.mode-icon{font-size:18px;}
+.mode-name{font-size:11px;font-weight:700;color:var(--txt);margin-top:3px;}
+.mode-desc{font-size:9px;color:var(--txt2);}
+
+.api-label{font-size:12px;color:var(--txt2);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.api-link{color:var(--accent);text-decoration:none;font-size:11px;}
+input[type=password],input[type=text]{
+  width:100%;background:var(--input);border:1px solid var(--border);
+  border-radius:9px;padding:10px 12px;color:var(--txt);font-size:13px;
+  outline:none;-webkit-appearance:none;font-family:monospace;
+}
+input:focus{border-color:var(--accent);}
+
+.sheet-actions{display:flex;gap:9px;padding:0 16px 28px;margin-top:6px;}
+.sbtn{
+  flex:1;padding:13px;border-radius:12px;border:none;
+  font-size:13px;font-weight:700;cursor:pointer;
+}
+.sbtn.primary{background:var(--accent);color:#fff;}
+.sbtn.secondary{background:var(--card2);color:var(--txt);border:1px solid var(--border);}
+.sbtn.chat-btn{background:var(--purple);color:#fff;}
+.sbtn:active{opacity:.8;}
+
+.empty{text-align:center;padding:40px;color:var(--txt2);font-size:13px;}
 </style>
 </head>
 <body>
 
-<!-- Search + Filter bar -->
 <div class="search-wrap">
   <div class="search-box">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-    </svg>
-    <input type="text" id="searchInput" placeholder="Model veya sağlayıcı ara..." oninput="filterProviders()">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="Sağlayıcı ara…" oninput="handleSearch(this.value)">
   </div>
   <div class="filter-bar">
-    <div class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">Tümü</div>
-    <div class="filter-chip" data-filter="active" onclick="setFilter('active',this)">Aktif</div>
-    <div class="filter-chip" data-filter="free" onclick="setFilter('free',this)">Ücretsiz</div>
-    <div class="filter-chip" data-filter="paid" onclick="setFilter('paid',this)">API Anahtarlı</div>
+    <button class="chip active"  onclick="filter('all',this)">Tümü</button>
+    <button class="chip" onclick="filter('free',this)">Ücretsiz</button>
+    <button class="chip" onclick="filter('paid',this)">Ücretli</button>
+    <button class="chip" onclick="filter('active',this)">API Anahtarlı</button>
+    <button class="chip" onclick="filter('coding',this)">Kod</button>
+    <button class="chip" onclick="filter('search',this)">Web Aramalı</button>
   </div>
 </div>
 
-<!-- Active provider banner -->
-<div class="active-banner" id="activeBanner">
-  <div class="active-banner-title">Aktif Model</div>
-  <div class="active-banner-row">
-    <div class="active-banner-icon" id="bannerIcon"></div>
-    <div>
-      <div class="active-banner-name" id="bannerName"></div>
-      <div class="active-banner-model" id="bannerModel"></div>
-    </div>
-  </div>
+<div id="active-banner" class="active-banner">
+  <div class="active-banner-label">Aktif Sağlayıcı</div>
+  <div id="active-banner-name" class="active-banner-name"></div>
+  <div id="active-banner-model" class="active-banner-model"></div>
 </div>
 
-<!-- Provider grid -->
-<div class="providers-grid" id="providersGrid"></div>
+<div class="grid" id="grid"></div>
 
-<!-- Detail Sheet -->
-<div class="sheet-bg" id="sheetBg" onclick="handleSheetBgClick(event)">
-  <div class="sheet" id="sheet">
+<!-- Detail sheet -->
+<div class="sheet-bg" id="sheet-bg" onclick="closeSheet(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
     <div class="sheet-header">
-      <div class="sheet-logo-area" id="s-logo-area"></div>
-      <div class="sheet-info">
-        <div class="sheet-title" id="s-title"></div>
-        <div class="sheet-subtitle" id="s-subtitle"></div>
+      <div class="sheet-logo-box" id="s-logo-box"></div>
+      <div>
+        <div class="sheet-title" id="s-name"></div>
+        <div class="sheet-subtitle" id="s-desc"></div>
       </div>
     </div>
     <div class="sheet-body">
-      <div class="models-title">Modeller</div>
+      <div class="s-section-title">Modeller</div>
       <div class="model-grid" id="s-models"></div>
-      <div class="models-title">Kullanım Modu</div>
+      <div class="s-section-title">Mod Seçimi</div>
       <div class="mode-row">
         <div class="mode-btn selected" id="mode-normal" onclick="selectMode('normal')">
           <div class="mode-icon">⚡</div>
@@ -245,7 +223,7 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
         </div>
         <div class="mode-btn" id="mode-power" onclick="selectMode('power')">
           <div class="mode-icon">🚀</div>
-          <div class="mode-name">Güçlü</div>
+          <div class="mode-name">Power</div>
           <div class="mode-desc">Max kalite</div>
         </div>
         <div class="mode-btn" id="mode-economy" onclick="selectMode('economy')">
@@ -254,206 +232,165 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
           <div class="mode-desc">Az kota</div>
         </div>
       </div>
-      <div class="api-section" id="api-section">
+      <div id="api-section" class="api-section" style="margin-bottom:14px">
         <div class="api-label">
           <span>API Anahtarı</span>
-          <a id="s-docs-link" class="api-link" href="#" onclick="return false;">Nasıl alınır? →</a>
+          <a id="s-docs-link" class="api-link" href="#" onclick="return false;" style="display:none">Nasıl alınır? →</a>
         </div>
-        <input type="password" id="s-apikey" placeholder="API anahtarını buraya girin...">
+        <input type="password" id="s-apikey" placeholder="sk-…">
       </div>
     </div>
     <div class="sheet-actions">
-      <button class="btn-sheet secondary" onclick="closeSheet()">İptal</button>
-      <button class="btn-sheet use-chat" onclick="useForChat()">💬 Chat</button>
-      <button class="btn-sheet primary" onclick="saveProvider()">Kaydet</button>
+      <button class="sbtn secondary" onclick="closeSheet()">İptal</button>
+      <button class="sbtn chat-btn" onclick="useForChat()">💬 Chat</button>
+      <button class="sbtn primary" onclick="saveProvider()">💾 Kaydet</button>
     </div>
   </div>
 </div>
 
 <script>
-var allProviders = [];
-var currentFilter = 'all';
-var searchQuery = '';
-var selectedProvider = null;
-var selectedModel = '';
-var selectedMode = 'normal';
+var allProviders = [], currentFilter = 'all', searchQuery = '';
+var selectedProvider = null, selectedModel = '', selectedMode = 'normal';
 
-/* Real styled logos for each provider */
-var LOGO_HTML = {
-  openai: '<div class="logo-text logo-text-openai" style="font-size:11px;letter-spacing:1px">OpenAI</div>',
-  anthropic: '<div class="logo-text logo-text-anthropic" style="font-size:13px">Claude</div>',
-  gemini: '<div class="logo-text logo-text-gemini" style="font-size:13px">Gemini</div>',
-  groq: '<div class="logo-text logo-text-groq">groq</div>',
-  mistral: '<div class="logo-text logo-text-mistral" style="font-size:13px">Mistral</div>',
-  cohere: '<div class="logo-text logo-text-cohere" style="font-size:13px">Cohere</div>',
-  openrouter: '<div class="logo-text logo-text-openrouter" style="font-size:10px">OpenRouter</div>',
-  together: '<div class="logo-text logo-text-together" style="font-size:11px">Together</div>',
-  perplexity: '<div class="logo-text logo-text-perplexity" style="font-size:10px">Perplexity</div>',
-  deepseek: '<div class="logo-text logo-text-deepseek" style="font-size:11px">DeepSeek</div>',
-  custom: '<div class="logo-text logo-text-custom" style="font-size:11px">&lt;custom&gt;</div>'
+/* Real brand logo text/color data */
+var BRAND = {
+  openai:     { cls:'lt-openai',     bg:'logo-openai',     text:'OpenAI' },
+  anthropic:  { cls:'lt-anthropic',  bg:'logo-anthropic',  text:'Anthropic' },
+  gemini:     { cls:'lt-gemini',     bg:'logo-gemini',     text:'Gemini' },
+  groq:       { cls:'lt-groq',       bg:'logo-groq',       text:'Groq' },
+  mistral:    { cls:'lt-mistral',    bg:'logo-mistral',    text:'Mistral' },
+  cohere:     { cls:'lt-cohere',     bg:'logo-cohere',     text:'Cohere' },
+  openrouter: { cls:'lt-openrouter', bg:'logo-openrouter', text:'OpenRouter' },
+  together:   { cls:'lt-together',   bg:'logo-together',   text:'Together' },
+  perplexity: { cls:'lt-perplexity', bg:'logo-perplexity', text:'Perplexity' },
+  deepseek:   { cls:'lt-deepseek',   bg:'logo-deepseek',   text:'DeepSeek' },
+  custom:     { cls:'lt-custom',     bg:'logo-custom',     text:'Custom API' },
 };
 
-var LOGO_CLASS = {
-  openai:'logo-openai', anthropic:'logo-anthropic', gemini:'logo-gemini',
-  groq:'logo-groq', mistral:'logo-mistral', cohere:'logo-cohere',
-  openrouter:'logo-openrouter', together:'logo-together',
-  perplexity:'logo-perplexity', deepseek:'logo-deepseek', custom:'logo-custom'
-};
-
-function hexToRgba(hex, a) {
-  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return 'rgba('+r+','+g+','+b+','+a+')';
-}
-
-function setFilter(f, el) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('active');});
-  el.classList.add('active');
-  renderProviders();
-}
-
-function filterProviders() {
-  searchQuery = document.getElementById('searchInput').value.toLowerCase();
-  renderProviders();
-}
-
-window.loadMarket = function(data) {
+window.loadMarket = function(data){
   allProviders = data.providers || [];
-  renderActiveBanner(data);
-  renderProviders();
+  renderBanner(data.activeProvider, data.activeModel);
+  renderGrid(allProviders);
 };
 
-function renderActiveBanner(data) {
-  var activeId = data.activeProvider || '';
-  var activeModel = data.activeModel || '';
-  var p = allProviders.find(function(x){return x.id===activeId;});
-  if (!p) return;
-  var banner = document.getElementById('activeBanner');
-  banner.style.display = 'block';
-  document.getElementById('bannerIcon').innerHTML = LOGO_HTML[p.id] || p.name.charAt(0);
-  document.getElementById('bannerName').textContent = p.name;
-  document.getElementById('bannerModel').textContent = activeModel || (p.models&&p.models[0]) || '';
+function renderBanner(provider, model){
+  var el = document.getElementById('active-banner');
+  if(!provider){ el.style.display='none'; return; }
+  var p = allProviders.find(function(x){return x.id===provider;});
+  document.getElementById('active-banner-name').textContent = 'Aktif: ' + (p?p.name:provider);
+  document.getElementById('active-banner-model').textContent = model || 'Varsayılan model';
+  el.style.display = 'block';
 }
 
-function renderProviders() {
-  var grid = document.getElementById('providersGrid');
-  var active = (typeof Market!='undefined') ? Market.getActiveProvider() : '';
-  var filtered = allProviders.filter(function(p){
-    if (currentFilter==='active' && p.id!==active) return false;
-    if (currentFilter==='free' && !p.free) return false;
-    if (currentFilter==='paid' && p.free) return false;
-    if (searchQuery) {
-      var s = (p.name+' '+(p.models||[]).join(' ')).toLowerCase();
-      if (s.indexOf(searchQuery)<0) return false;
-    }
-    return true;
-  });
+function buildLogoHTML(id){
+  var b = BRAND[id] || BRAND['custom'];
+  return '<div class="logo-area ' + b.bg + '"><div class="logo-text ' + b.cls + '">' + b.text + '</div></div>';
+}
 
-  if (!filtered.length) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div class="empty-text">Sonuç bulunamadı</div><div class="empty-sub">Farklı bir arama deneyin</div></div>';
+function buildSheetLogo(id){
+  var b = BRAND[id] || BRAND['custom'];
+  return '<div class="' + b.bg + '" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center"><div class="logo-text ' + b.cls + '">' + b.text + '</div></div>';
+}
+
+function renderGrid(providers){
+  var el = document.getElementById('grid');
+  el.innerHTML = '';
+  if(!providers.length){
+    el.innerHTML = '<div class="empty" style="grid-column:1/-1">Sağlayıcı bulunamadı</div>';
     return;
   }
-
-  grid.innerHTML = '';
-  filtered.forEach(function(p, i){
-    var isActive = p.id===active;
-    var logoClass = LOGO_CLASS[p.id] || 'logo-custom';
-    var logoHtml = LOGO_HTML[p.id] || '<div class="logo-text">' + p.name.charAt(0) + '</div>';
-    var div = document.createElement('div');
-    div.className = 'provider-card' + (isActive?' active':'');
-    div.style.animationDelay = (i*0.04)+'s';
-    div.innerHTML =
-      '<div class="provider-logo '+logoClass+'">' + logoHtml + '</div>' +
-      '<div class="provider-body">' +
-        '<div class="provider-name">' + p.name + '</div>' +
-        '<div class="provider-desc">' + p.description + '</div>' +
-        '<div class="provider-badges">' +
-          (p.free ? '<span class="badge free">Ücretsiz</span>' : '<span class="badge paid">API</span>') +
-          (p.hasKey ? '<span class="badge has-key">✓ Anahtarlı</span>' : '') +
-          (isActive ? '<span class="badge active-badge">● Aktif</span>' : '') +
-        '</div>' +
+  providers.forEach(function(p, i){
+    var card = document.createElement('div');
+    card.className = 'card' + (p.hasKey ? ' active-card' : '');
+    card.style.animationDelay = (i * 0.035) + 's';
+    card.onclick = function(){ openSheet(p); };
+    var badges = '';
+    if(p.free) badges += '<span class="badge free">Ücretsiz</span>';
+    else        badges += '<span class="badge paid">Ücretli</span>';
+    if(p.hasKey) badges += '<span class="badge has-key">✓ API</span>';
+    card.innerHTML =
+      buildLogoHTML(p.id) +
+      '<div class="prov-body">' +
+      '<div class="prov-name">' + p.name + '</div>' +
+      '<div class="prov-desc">' + p.description + '</div>' +
+      '<div class="prov-badges">' + badges + '</div>' +
       '</div>';
-    div.onclick = function(){ openSheet(p.id); };
-    grid.appendChild(div);
+    el.appendChild(card);
   });
 }
 
-function openSheet(id) {
-  var p = allProviders.find(function(x){return x.id===id;});
-  if (!p) return;
-  selectedProvider = p;
-  selectedModel = (typeof Market!='undefined') ? Market.getActiveModel() : (p.models&&p.models[0])||'';
-  if (!selectedModel || !p.models||p.models.indexOf(selectedModel)<0) selectedModel=p.models&&p.models[0]||'';
+function handleSearch(q){
+  searchQuery = q.toLowerCase().trim();
+  applyFilters();
+}
 
-  var logoClass = LOGO_CLASS[p.id]||'logo-custom';
-  var logoHtml = LOGO_HTML[p.id]||'<div>'+p.name.charAt(0)+'</div>';
-  var logoArea = document.getElementById('s-logo-area');
-  logoArea.className = 'sheet-logo-area ' + logoClass;
-  logoArea.innerHTML = logoHtml;
+function filter(type, btn){
+  document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
+  btn.classList.add('active');
+  currentFilter = type;
+  applyFilters();
+}
 
-  document.getElementById('s-title').textContent = p.name;
-  document.getElementById('s-subtitle').textContent = p.description;
+function applyFilters(){
+  var filtered = allProviders;
+  if(currentFilter==='free')   filtered = filtered.filter(function(p){return p.free;});
+  if(currentFilter==='paid')   filtered = filtered.filter(function(p){return !p.free;});
+  if(currentFilter==='active') filtered = filtered.filter(function(p){return p.hasKey;});
+  if(currentFilter==='coding') filtered = filtered.filter(function(p){return ['openai','anthropic','deepseek','groq','mistral'].indexOf(p.id)!==-1;});
+  if(currentFilter==='search') filtered = filtered.filter(function(p){return ['perplexity','openrouter'].indexOf(p.id)!==-1;});
+  if(searchQuery)              filtered = filtered.filter(function(p){return p.name.toLowerCase().indexOf(searchQuery)!==-1;});
+  renderGrid(filtered);
+}
 
-  var mGrid = document.getElementById('s-models');
-  mGrid.innerHTML = '';
-  (p.models||[]).forEach(function(m){
-    var c = document.createElement('div');
-    c.className = 'model-card' + (m===selectedModel?' selected':'');
-    c.innerHTML = '<div class="model-name">' + m + '</div>';
-    c.onclick = function(){
-      selectedModel = m;
-      mGrid.querySelectorAll('.model-card').forEach(function(x){x.classList.remove('selected');});
-      c.classList.add('selected');
-    };
-    mGrid.appendChild(c);
+function openSheet(p){
+  selectedProvider = p; selectedModel = p.models&&p.models.length?p.models[0]:''; selectedMode='normal';
+  document.getElementById('s-logo-box').innerHTML = buildSheetLogo(p.id);
+  document.getElementById('s-name').textContent = p.name;
+  document.getElementById('s-desc').textContent = p.description;
+  document.getElementById('s-apikey').value = '';
+  var dl = document.getElementById('s-docs-link');
+  if(p.docsUrl){ dl.style.display=''; dl.href='#'; } else { dl.style.display='none'; }
+  var mg = document.getElementById('s-models'); mg.innerHTML='';
+  (p.models||[]).forEach(function(m,i){
+    var mc=document.createElement('div');
+    mc.className='model-chip'+(i===0?' selected':'');
+    mc.id='mc-'+i;
+    mc.onclick=function(){document.querySelectorAll('.model-chip').forEach(function(x){x.classList.remove('selected');});mc.classList.add('selected');selectedModel=m;};
+    mc.innerHTML='<div class="model-chip-name">'+m+'</div>';
+    mg.appendChild(mc);
   });
-
-  var apiSec = document.getElementById('api-section');
-  if (p.free) { apiSec.style.display='none'; }
-  else {
-    apiSec.style.display='block';
-    document.getElementById('s-apikey').value = '';
-    document.getElementById('s-apikey').placeholder = p.id==='custom' ? 'sk-… veya boş' : 'API anahtarını girin';
-    var dl = document.getElementById('s-docs-link');
-    dl.href = p.docsUrl||'#';
-    dl.onclick = function(){
-      if(typeof Android!='undefined') Android.openUrl(p.docsUrl||'');
-      return false;
-    };
-  }
-
-  document.getElementById('sheetBg').classList.add('open');
+  selectMode('normal');
+  document.getElementById('sheet-bg').classList.add('open');
 }
 
-function closeSheet() { document.getElementById('sheetBg').classList.remove('open'); }
-
-function handleSheetBgClick(e) {
-  if (e.target === document.getElementById('sheetBg')) closeSheet();
+function closeSheet(e){
+  if(!e||e.target===document.getElementById('sheet-bg'))
+    document.getElementById('sheet-bg').classList.remove('open');
 }
 
-function selectMode(m) {
-  selectedMode = m;
-  ['normal','power','economy'].forEach(function(id){
-    document.getElementById('mode-'+id).classList.toggle('selected', id===m);
+function selectMode(m){
+  selectedMode=m;
+  ['normal','power','economy'].forEach(function(x){
+    document.getElementById('mode-'+x).classList.toggle('selected',x===m);
   });
 }
 
-function saveProvider() {
-  if (!selectedProvider) return;
-  var key = document.getElementById('s-apikey').value.trim();
-  if (typeof Market!='undefined') {
-    Market.saveProvider(selectedProvider.id, selectedModel, selectedMode, key);
+function saveProvider(){
+  if(!selectedProvider)return;
+  var key=document.getElementById('s-apikey').value.trim();
+  if(typeof Market!=='undefined'){
+    if(key) Market.saveApiKey(selectedProvider.id,key,selectedModel);
+    else    Market.setActiveModel(selectedProvider.id,selectedModel,selectedMode);
   }
-  closeSheet();
+  document.getElementById('sheet-bg').classList.remove('open');
 }
 
-function useForChat() {
-  if (!selectedProvider) return;
-  var key = document.getElementById('s-apikey').value.trim();
-  if (typeof Market!='undefined') {
-    Market.openChat(selectedProvider.id, selectedModel);
-  }
-  closeSheet();
+function useForChat(){
+  if(!selectedProvider)return;
+  var key=document.getElementById('s-apikey').value.trim();
+  if(key&&typeof Market!=='undefined') Market.saveApiKey(selectedProvider.id,key,selectedModel);
+  if(typeof Market!=='undefined') Market.openChat(selectedProvider.id,selectedModel);
+  document.getElementById('sheet-bg').classList.remove('open');
 }
 </script>
 </body>

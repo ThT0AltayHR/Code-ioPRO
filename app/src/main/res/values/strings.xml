@@ -1,17 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Code-ioPRO</string>
-    <string name="nav_agents">Agents</string>
-    <string name="ask_ai_label">Code-ioPRO\'ya Sor</string>
-    <string name="app_version" translatable="false">1.2.0</string>
+    <string name="app_name" translatable="false">CODEX PRO</string>
+    <string name="app_version" translatable="false">v2.0.0</string>
     <string name="developer_name" translatable="false">Muhammed</string>
 
-    <!-- Navigation Tabs -->
-    <string name="nav_chat">Chat</string>
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_chat">Sohbet</string>
     <string name="nav_files">Dosyalar</string>
     <string name="nav_shell">Terminal</string>
-    <string name="nav_market">AI</string>
-    <string name="nav_secrets">Secrets</string>
+    <string name="nav_market">AI Market</string>
+    <string name="nav_secrets">API</string>
+    <string name="nav_agents">Sub Agt\'lar</string>
+    <string name="nav_editor">Kod Editörü</string>
+    <string name="nav_tasks">Görevler</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- Header tabs -->
+    <string name="tab_sohbet">Sohbet</string>
+    <string name="tab_editor">Kod Editörü</string>
+    <string name="tab_market">AI Market</string>
+    <string name="tab_ayarlar">Ayarlar</string>
+
+    <!-- Sidebar -->
+    <string name="sidebar_project_section">PROJE</string>
+    <string name="sidebar_shortcuts_section">KISAYOLLAR</string>
+    <string name="shortcut_new_project">Yeni Proje</string>
+    <string name="shortcut_open_file">Dosya Aç</string>
+    <string name="shortcut_zip">Zip Oluştur</string>
+    <string name="shortcut_terminal">Terminal Aç</string>
+
+    <!-- Dashboard -->
+    <string name="greeting">Merhaba Muhammed 👋</string>
+    <string name="greeting_sub">Bugün ne geliştirmek istersin?</string>
+    <string name="action_new_project">Yeni Proje Oluştur</string>
+    <string name="action_upload_file">Dosya Yükle</string>
+    <string name="action_plan_ai">AI ile Planla</string>
 
     <!-- Chat -->
     <string name="chat_loading">Yükleniyor…</string>
@@ -19,6 +43,7 @@
     <string name="copied">✓ Kopyalandı</string>
     <string name="downloaded">✓ İndirildi: </string>
     <string name="download_started">İndirme başladı: </string>
+    <string name="ask_ai_label">CODEX PRO\'ya Sor</string>
 
     <!-- Files -->
     <string name="files_empty">Henüz dosya yok.\nAI ile kod yaz ve buraya indir.</string>
@@ -29,15 +54,15 @@
     <string name="files_root">Kök dizindesiniz</string>
 
     <!-- Shell -->
-    <string name="shell_title">Shell Terminali</string>
+    <string name="shell_title">Terminal</string>
 
     <!-- Secrets -->
-    <string name="secrets_title">SECRETS</string>
-    <string name="secrets_lock_title">SECRETS\'a Erişim</string>
-    <string name="secrets_lock_subtitle">Code-ioPRO güvenli depo</string>
+    <string name="secrets_title">API KEYS</string>
+    <string name="secrets_lock_title">API Erişimi</string>
+    <string name="secrets_lock_subtitle">CODEX PRO güvenli depo</string>
     <string name="secrets_auth_required">Kimlik doğrulama gerekli</string>
     <string name="secrets_auth_failed">Kimlik doğrulama başarısız</string>
-    <string name="secrets_locked">SECRETS kilitlendi</string>
+    <string name="secrets_locked">Secrets kilitlendi</string>
     <string name="secrets_saved">✓ Kaydedildi: </string>
     <string name="secrets_deleted">✓ Silindi: </string>
 
@@ -47,7 +72,7 @@
     <string name="editor_unsaved_changes">Kaydedilmemiş değişiklikler var</string>
 
     <!-- Market -->
-    <string name="market_title">AI Marketi</string>
+    <string name="market_title">AI Market</string>
     <string name="market_active_models">Aktif Modeller</string>
 
     <!-- Settings -->
@@ -78,6 +103,6 @@
     <string name="update_btn">Güncelle</string>
     <string name="update_skip">Bu Sürümü Atla</string>
 
-    <!-- System Prompt (default) -->
-    <string name="default_system_prompt">Sen Code-ioPRO yapay zeka asistanısın. Seni Muhammed geliştirdi. Kim seni geliştirdi veya kim tarafından yapıldın diye sorulduğunda: "Code-ioPRO, Muhammed tarafından geliştirilmiştir" de. Başka bir geliştiriciden, şirketten veya yapay zeka sağlayıcısından bahsetme. Türkçe ve diğer dillerde yardımcı ol.</string>
+    <!-- System Prompt -->
+    <string name="default_system_prompt">Bu uygulama Muhammed tarafından geliştirilmiş profesyonel bir yapay zeka asistanıdır. Adın CODEX PRO\'dur. Amacın kod yazma, analiz ve geliştirme konusunda yardımcı olmaktır. Kim tarafından geliştirildiğin sorulduğunda yalnızca şunu söyle: Bu uygulama Muhammed tarafından geliştirilmiştir. Başka hiçbir geliştirici veya şirketten bahsetme.</string>
 </resources>

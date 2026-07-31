@@ -1,31 +1,36 @@
 package com.codeioPRO.app;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import android.content.Intent;
-import android.net.Uri;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG_CHAT    = "tab_chat";
-    private static final String TAG_FILES   = "tab_files";
-    private static final String TAG_SHELL   = "tab_shell";
-    private static final String TAG_MARKET  = "tab_market";
-    private static final String TAG_SECRETS = "tab_secrets";
-    private static final String TAG_AGENTS  = "tab_agents";
+    // Fragment tags
+    private static final String TAG_DASHBOARD = "tab_dashboard";
+    private static final String TAG_CHAT      = "tab_chat";
+    private static final String TAG_FILES     = "tab_files";
+    private static final String TAG_SHELL     = "tab_shell";
+    private static final String TAG_MARKET    = "tab_market";
+    private static final String TAG_SECRETS   = "tab_secrets";
+    private static final String TAG_AGENTS    = "tab_agents";
 
+    // Fragment instances
+    private DashboardFragment  dashboardFragment;
     private ChatFragment       chatFragment;
     private FilesFragment      filesFragment;
     private ShellFragment      shellFragment;
@@ -33,13 +38,17 @@ public class MainActivity extends AppCompatActivity {
     private SecretsFragment    secretsFragment;
     private SubAgentFragment   agentsFragment;
 
-    // Custom bottom nav — LinearLayout (BottomNavigationView max 5 sınırını aşar)
-    private LinearLayout customBottomNav;
-    private android.widget.FrameLayout fragmentContainer;
-    private String activeTag = TAG_CHAT;
+    private DrawerLayout drawerLayout;
+    private String activeTag = TAG_DASHBOARD;
 
-    // Tab root views (6 adet LinearLayout)
-    private LinearLayout tabChat, tabFiles, tabShell, tabMarket, tabSecrets, tabAgents;
+    // Header tabs
+    private TextView htabChat, htabEditor, htabMarket, htabSettings;
+
+    // Sidebar items
+    private LinearLayout sidebarDashboard, sidebarChat, sidebarEditor, sidebarShell;
+    private LinearLayout sidebarFiles, sidebarMarket, sidebarAgents, sidebarApi, sidebarSettings;
+    private LinearLayout sidebarDb, sidebarTasks;
+    private LinearLayout shortcutNewProject, shortcutOpenFile, shortcutZip, shortcutTerminal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,26 +59,44 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setNavigationBarColor(getResources().getColor(R.color.nav_bar, getTheme()));
         setContentView(R.layout.activity_main);
 
-        fragmentContainer  = findViewById(R.id.fragment_container);
-        customBottomNav    = findViewById(R.id.bottom_navigation_custom);
+        drawerLayout = findViewById(R.id.drawer_layout);
 
-        tabChat    = findViewById(R.id.nav_chat);
-        tabFiles   = findViewById(R.id.nav_files);
-        tabShell   = findViewById(R.id.nav_shell);
-        tabMarket  = findViewById(R.id.nav_market);
-        tabSecrets = findViewById(R.id.nav_secrets);
-        tabAgents  = findViewById(R.id.nav_agents);
+        // Header tabs
+        htabChat     = findViewById(R.id.htab_chat);
+        htabEditor   = findViewById(R.id.htab_editor);
+        htabMarket   = findViewById(R.id.htab_market);
+        htabSettings = findViewById(R.id.htab_settings);
+
+        // Sidebar items
+        sidebarDashboard  = findViewById(R.id.sidebar_dashboard);
+        sidebarChat       = findViewById(R.id.sidebar_chat);
+        sidebarEditor     = findViewById(R.id.sidebar_editor);
+        sidebarShell      = findViewById(R.id.sidebar_shell);
+        sidebarFiles      = findViewById(R.id.sidebar_files);
+        sidebarMarket     = findViewById(R.id.sidebar_market);
+        sidebarAgents     = findViewById(R.id.sidebar_agents);
+        sidebarApi        = findViewById(R.id.sidebar_api);
+        sidebarSettings   = findViewById(R.id.sidebar_settings);
+        sidebarDb         = findViewById(R.id.sidebar_db);
+        sidebarTasks      = findViewById(R.id.sidebar_tasks);
+
+        shortcutNewProject = findViewById(R.id.shortcut_new_project);
+        shortcutOpenFile   = findViewById(R.id.shortcut_open_file);
+        shortcutZip        = findViewById(R.id.shortcut_zip);
+        shortcutTerminal   = findViewById(R.id.shortcut_terminal);
 
         setupFragments(savedInstanceState);
-        setupCustomBottomNav();
+        setupHeaderListeners();
+        setupSidebarListeners();
         setupBackPress();
 
-        fragmentContainer.setAlpha(0f);
-        fragmentContainer.animate().alpha(1f).setDuration(400).start();
+        // Fade in
+        View container = findViewById(R.id.fragment_container);
+        container.setAlpha(0f);
+        container.animate().alpha(1f).setDuration(350).start();
 
-        // İlk seçili sekmeyi işaretle
-        updateTabSelection(activeTag);
-
+        updateHeaderTabs(activeTag);
+        updateSidebarSelection(activeTag);
         handleIntent(getIntent());
     }
 
@@ -95,74 +122,139 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // ── Fragments ────────────────────────────────────────────────────────────
+
     private void setupFragments(Bundle savedInstanceState) {
         FragmentManager fm = getSupportFragmentManager();
 
         if (savedInstanceState != null) {
-            chatFragment    = (ChatFragment)     fm.findFragmentByTag(TAG_CHAT);
-            filesFragment   = (FilesFragment)    fm.findFragmentByTag(TAG_FILES);
-            shellFragment   = (ShellFragment)    fm.findFragmentByTag(TAG_SHELL);
-            marketFragment  = (AiMarketFragment) fm.findFragmentByTag(TAG_MARKET);
-            secretsFragment = (SecretsFragment)  fm.findFragmentByTag(TAG_SECRETS);
-            agentsFragment  = (SubAgentFragment) fm.findFragmentByTag(TAG_AGENTS);
+            dashboardFragment = (DashboardFragment)  fm.findFragmentByTag(TAG_DASHBOARD);
+            chatFragment      = (ChatFragment)        fm.findFragmentByTag(TAG_CHAT);
+            filesFragment     = (FilesFragment)       fm.findFragmentByTag(TAG_FILES);
+            shellFragment     = (ShellFragment)       fm.findFragmentByTag(TAG_SHELL);
+            marketFragment    = (AiMarketFragment)    fm.findFragmentByTag(TAG_MARKET);
+            secretsFragment   = (SecretsFragment)     fm.findFragmentByTag(TAG_SECRETS);
+            agentsFragment    = (SubAgentFragment)    fm.findFragmentByTag(TAG_AGENTS);
         }
 
-        if (chatFragment    == null) chatFragment    = new ChatFragment();
-        if (filesFragment   == null) filesFragment   = new FilesFragment();
-        if (shellFragment   == null) shellFragment   = new ShellFragment();
-        if (marketFragment  == null) marketFragment  = new AiMarketFragment();
-        if (secretsFragment == null) secretsFragment = new SecretsFragment();
-        if (agentsFragment  == null) agentsFragment  = new SubAgentFragment();
+        if (dashboardFragment == null) dashboardFragment = new DashboardFragment();
+        if (chatFragment      == null) chatFragment      = new ChatFragment();
+        if (filesFragment     == null) filesFragment     = new FilesFragment();
+        if (shellFragment     == null) shellFragment     = new ShellFragment();
+        if (marketFragment    == null) marketFragment    = new AiMarketFragment();
+        if (secretsFragment   == null) secretsFragment   = new SecretsFragment();
+        if (agentsFragment    == null) agentsFragment    = new SubAgentFragment();
 
         FragmentTransaction ft = fm.beginTransaction();
-        addIfNeeded(ft, fm, chatFragment,    TAG_CHAT);
-        addIfNeeded(ft, fm, filesFragment,   TAG_FILES);
-        addIfNeeded(ft, fm, shellFragment,   TAG_SHELL);
-        addIfNeeded(ft, fm, marketFragment,  TAG_MARKET);
-        addIfNeeded(ft, fm, secretsFragment, TAG_SECRETS);
-        addIfNeeded(ft, fm, agentsFragment,  TAG_AGENTS);
+        addIfNeeded(ft, fm, dashboardFragment, TAG_DASHBOARD);
+        addIfNeeded(ft, fm, chatFragment,      TAG_CHAT);
+        addIfNeeded(ft, fm, filesFragment,     TAG_FILES);
+        addIfNeeded(ft, fm, shellFragment,     TAG_SHELL);
+        addIfNeeded(ft, fm, marketFragment,    TAG_MARKET);
+        addIfNeeded(ft, fm, secretsFragment,   TAG_SECRETS);
+        addIfNeeded(ft, fm, agentsFragment,    TAG_AGENTS);
 
-        // Hepsini gizle, sadece aktif sekmeyi göster
-        ft.hide(filesFragment).hide(shellFragment).hide(marketFragment)
-          .hide(secretsFragment).hide(agentsFragment);
+        ft.hide(chatFragment).hide(filesFragment).hide(shellFragment)
+          .hide(marketFragment).hide(secretsFragment).hide(agentsFragment);
+
         if (savedInstanceState != null) {
-            // Kayıtlı durumdaki aktif sekme
             Fragment active = fm.findFragmentByTag(activeTag);
-            if (active != null) { ft.show(active); }
-            else ft.show(chatFragment);
+            if (active != null) ft.show(active);
+            else ft.show(dashboardFragment);
         } else {
-            ft.show(chatFragment);
+            ft.show(dashboardFragment);
         }
         ft.commitAllowingStateLoss();
     }
 
-    private void addIfNeeded(FragmentTransaction ft, FragmentManager fm,
-                              Fragment fragment, String tag) {
-        if (fm.findFragmentByTag(tag) == null) {
-            ft.add(R.id.fragment_container, fragment, tag);
-        }
+    private void addIfNeeded(FragmentTransaction ft, FragmentManager fm, Fragment f, String tag) {
+        if (fm.findFragmentByTag(tag) == null) ft.add(R.id.fragment_container, f, tag);
     }
 
-    private void setupCustomBottomNav() {
-        tabChat.setOnClickListener(v    -> onTabSelected(TAG_CHAT));
-        tabFiles.setOnClickListener(v   -> onTabSelected(TAG_FILES));
-        tabShell.setOnClickListener(v   -> onTabSelected(TAG_SHELL));
-        tabMarket.setOnClickListener(v  -> onTabSelected(TAG_MARKET));
-        tabSecrets.setOnClickListener(v -> onTabSelected(TAG_SECRETS));
-        tabAgents.setOnClickListener(v  -> onTabSelected(TAG_AGENTS));
+    // ── Header tab listeners ─────────────────────────────────────────────────
+
+    private void setupHeaderListeners() {
+        // Hamburger
+        View btnMenu = findViewById(R.id.btn_menu);
+        if (btnMenu != null) btnMenu.setOnClickListener(v -> {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                drawerLayout.openDrawer(GravityCompat.START);
+            }
+        });
+
+        // Close drawer button inside sidebar
+        View btnClose = findViewById(R.id.btn_close_drawer);
+        if (btnClose != null) btnClose.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+
+        // Header tabs
+        if (htabChat     != null) htabChat.setOnClickListener(v     -> onHeaderTabSelected(TAG_CHAT));
+        if (htabEditor   != null) htabEditor.setOnClickListener(v   -> onHeaderTabSelected(TAG_FILES));
+        if (htabMarket   != null) htabMarket.setOnClickListener(v   -> onHeaderTabSelected(TAG_MARKET));
+        if (htabSettings != null) htabSettings.setOnClickListener(v -> onHeaderTabSelected(TAG_SECRETS));
     }
 
-    private void onTabSelected(String tag) {
-        if (!switchToTab(tag)) return;
-        // Haptic feedback
-        View tab = getTabView(tag);
-        if (tab != null) tab.performHapticFeedback(
-            android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+    private void onHeaderTabSelected(String tag) {
+        switchToTab(tag);
+        drawerLayout.closeDrawer(GravityCompat.START);
     }
+
+    // ── Sidebar listeners ────────────────────────────────────────────────────
+
+    private void setupSidebarListeners() {
+        if (sidebarDashboard != null)
+            sidebarDashboard.setOnClickListener(v -> closeSidebarAndSwitch(TAG_DASHBOARD));
+        if (sidebarChat != null)
+            sidebarChat.setOnClickListener(v -> closeSidebarAndSwitch(TAG_CHAT));
+        if (sidebarEditor != null)
+            sidebarEditor.setOnClickListener(v -> closeSidebarAndSwitch(TAG_FILES));
+        if (sidebarShell != null)
+            sidebarShell.setOnClickListener(v -> closeSidebarAndSwitch(TAG_SHELL));
+        if (sidebarFiles != null)
+            sidebarFiles.setOnClickListener(v -> closeSidebarAndSwitch(TAG_FILES));
+        if (sidebarMarket != null)
+            sidebarMarket.setOnClickListener(v -> closeSidebarAndSwitch(TAG_MARKET));
+        if (sidebarAgents != null)
+            sidebarAgents.setOnClickListener(v -> closeSidebarAndSwitch(TAG_AGENTS));
+        if (sidebarApi != null)
+            sidebarApi.setOnClickListener(v -> closeSidebarAndSwitch(TAG_SECRETS));
+        if (sidebarSettings != null)
+            sidebarSettings.setOnClickListener(v -> {
+                drawerLayout.closeDrawer(GravityCompat.START);
+                // Open settings (uses existing secrets/settings mechanism)
+                if (chatFragment != null) {
+                    switchToTab(TAG_CHAT);
+                    chatFragment.showSettingsDialog();
+                }
+            });
+        if (sidebarDb != null)
+            sidebarDb.setOnClickListener(v -> closeSidebarAndSwitch(TAG_FILES));
+        if (sidebarTasks != null)
+            sidebarTasks.setOnClickListener(v -> closeSidebarAndSwitch(TAG_AGENTS));
+
+        // Shortcuts
+        if (shortcutNewProject != null)
+            shortcutNewProject.setOnClickListener(v -> closeSidebarAndSwitch(TAG_FILES));
+        if (shortcutOpenFile != null)
+            shortcutOpenFile.setOnClickListener(v -> closeSidebarAndSwitch(TAG_FILES));
+        if (shortcutZip != null)
+            shortcutZip.setOnClickListener(v -> closeSidebarAndSwitch(TAG_SHELL));
+        if (shortcutTerminal != null)
+            shortcutTerminal.setOnClickListener(v -> closeSidebarAndSwitch(TAG_SHELL));
+    }
+
+    private void closeSidebarAndSwitch(String tag) {
+        drawerLayout.closeDrawer(GravityCompat.START);
+        switchToTab(tag);
+    }
+
+    // ── Tab switching ─────────────────────────────────────────────────────────
 
     private boolean switchToTab(String tag) {
-        if (tag.equals(activeTag)) return false;
-
+        if (tag.equals(activeTag)) {
+            return false;
+        }
         Fragment current = getSupportFragmentManager().findFragmentByTag(activeTag);
         Fragment next    = getSupportFragmentManager().findFragmentByTag(tag);
 
@@ -173,93 +265,68 @@ public class MainActivity extends AppCompatActivity {
         ft.commitAllowingStateLoss();
 
         activeTag = tag;
-        updateTabSelection(tag);
-        animateTabIcon(tag);
+        updateHeaderTabs(tag);
+        updateSidebarSelection(tag);
         return true;
     }
 
-    /**
-     * Seçili sekmenin rengi accent (mavi), diğerleri gri.
-     */
-    private void updateTabSelection(String selected) {
-        String[] allTags = {TAG_CHAT, TAG_FILES, TAG_SHELL, TAG_MARKET, TAG_SECRETS, TAG_AGENTS};
-        for (String tag : allTags) {
-            boolean isSelected = tag.equals(selected);
-            setTabSelected(tag, isSelected);
+    private void updateHeaderTabs(String selected) {
+        int activeColor   = getResources().getColor(R.color.text_primary, getTheme());
+        int inactiveColor = getResources().getColor(R.color.text_secondary, getTheme());
+
+        // Map fragment tags to header tabs
+        if (htabChat     != null) htabChat.setTextColor(selected.equals(TAG_CHAT)     ? activeColor : inactiveColor);
+        if (htabEditor   != null) htabEditor.setTextColor(selected.equals(TAG_FILES)  ? activeColor : inactiveColor);
+        if (htabMarket   != null) htabMarket.setTextColor(selected.equals(TAG_MARKET) ? activeColor : inactiveColor);
+        if (htabSettings != null) htabSettings.setTextColor(selected.equals(TAG_SECRETS) ? activeColor : inactiveColor);
+    }
+
+    private void updateSidebarSelection(String selected) {
+        // Reset all sidebar items to default appearance
+        resetSidebarItem(sidebarDashboard);
+        resetSidebarItem(sidebarChat);
+        resetSidebarItem(sidebarEditor);
+        resetSidebarItem(sidebarShell);
+        resetSidebarItem(sidebarFiles);
+        resetSidebarItem(sidebarMarket);
+        resetSidebarItem(sidebarAgents);
+        resetSidebarItem(sidebarApi);
+        resetSidebarItem(sidebarSettings);
+
+        // Highlight the selected one
+        LinearLayout toHighlight = null;
+        switch (selected) {
+            case TAG_DASHBOARD: toHighlight = sidebarDashboard; break;
+            case TAG_CHAT:      toHighlight = sidebarChat;      break;
+            case TAG_FILES:     toHighlight = sidebarFiles;     break;
+            case TAG_SHELL:     toHighlight = sidebarShell;     break;
+            case TAG_MARKET:    toHighlight = sidebarMarket;    break;
+            case TAG_SECRETS:   toHighlight = sidebarApi;       break;
+            case TAG_AGENTS:    toHighlight = sidebarAgents;    break;
+        }
+        if (toHighlight != null) {
+            toHighlight.setBackgroundColor(getResources().getColor(R.color.sidebar_active_bg, getTheme()));
         }
     }
 
-    private void setTabSelected(String tag, boolean selected) {
-        int iconViewId = getTabIconViewId(tag);
-        int textViewId = getTabTextViewId(tag);
-
-        View iconView = customBottomNav.findViewById(iconViewId);
-        View textView = customBottomNav.findViewById(textViewId);
-
-        int colorRes = selected ? R.color.bottom_nav_selected : R.color.bottom_nav_unselected;
-        int color    = ContextCompat.getColor(this, colorRes);
-
-        if (iconView instanceof ImageView) {
-            ((ImageView) iconView).setColorFilter(color, PorterDuff.Mode.SRC_IN);
-        }
-        if (textView instanceof TextView) {
-            ((TextView) textView).setTextColor(color);
+    private void resetSidebarItem(LinearLayout item) {
+        if (item != null) {
+            item.setBackgroundColor(0x00000000); // transparent
         }
     }
 
-    private void animateTabIcon(String tag) {
-        View tab = getTabView(tag);
-        if (tab != null) {
-            tab.animate()
-               .scaleX(1.2f).scaleY(1.2f).setDuration(80)
-               .withEndAction(() ->
-                   tab.animate().scaleX(1f).scaleY(1f).setDuration(80).start()
-               ).start();
-        }
-    }
-
-    private View getTabView(String tag) {
-        switch (tag) {
-            case TAG_CHAT:    return tabChat;
-            case TAG_FILES:   return tabFiles;
-            case TAG_SHELL:   return tabShell;
-            case TAG_MARKET:  return tabMarket;
-            case TAG_SECRETS: return tabSecrets;
-            case TAG_AGENTS:  return tabAgents;
-            default:          return tabChat;
-        }
-    }
-
-    private int getTabIconViewId(String tag) {
-        switch (tag) {
-            case TAG_CHAT:    return R.id.nav_chat_icon;
-            case TAG_FILES:   return R.id.nav_files_icon;
-            case TAG_SHELL:   return R.id.nav_shell_icon;
-            case TAG_MARKET:  return R.id.nav_market_icon;
-            case TAG_SECRETS: return R.id.nav_secrets_icon;
-            case TAG_AGENTS:  return R.id.nav_agents_icon;
-            default:          return R.id.nav_chat_icon;
-        }
-    }
-
-    private int getTabTextViewId(String tag) {
-        switch (tag) {
-            case TAG_CHAT:    return R.id.nav_chat_text;
-            case TAG_FILES:   return R.id.nav_files_text;
-            case TAG_SHELL:   return R.id.nav_shell_text;
-            case TAG_MARKET:  return R.id.nav_market_text;
-            case TAG_SECRETS: return R.id.nav_secrets_text;
-            case TAG_AGENTS:  return R.id.nav_agents_text;
-            default:          return R.id.nav_chat_text;
-        }
-    }
+    // ── Back press ───────────────────────────────────────────────────────────
 
     private void setupBackPress() {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (!activeTag.equals(TAG_CHAT)) {
-                    switchToTab(TAG_CHAT);
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else if (!activeTag.equals(TAG_DASHBOARD)) {
+                    switchToTab(TAG_DASHBOARD);
+                } else if (chatFragment != null && chatFragment.canGoBack()) {
+                    chatFragment.goBack();
                 } else {
                     setEnabled(false);
                     getOnBackPressedDispatcher().onBackPressed();
@@ -268,7 +335,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // ── Public Navigation API ────────────────────────────────────────────────
+    // ── Public Navigation API ─────────────────────────────────────────────────
+
     public void navigateToFiles()           { switchToTab(TAG_FILES); }
     public void navigateToShell(String cmd) {
         switchToTab(TAG_SHELL);
@@ -279,7 +347,8 @@ public class MainActivity extends AppCompatActivity {
     public void navigateToSecrets() { switchToTab(TAG_SECRETS); }
     public void navigateToAgents()  { switchToTab(TAG_AGENTS); }
 
-    // ── Fragment Getters ─────────────────────────────────────────────────────
+    // ── Fragment Getters ──────────────────────────────────────────────────────
+
     public ChatFragment     getChatFragment()    { return chatFragment; }
     public FilesFragment    getFilesFragment()   { return filesFragment; }
     public ShellFragment    getShellFragment()   { return shellFragment; }

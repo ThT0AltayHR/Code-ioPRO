@@ -1,4 +1,4 @@
-name: Code-ioPRO — Release APK Build
+name: CODEX PRO — Release APK Build
 
 on:
   push:
@@ -12,13 +12,14 @@ on:
         type: choice
         options: [release, debug]
       release_tag:
-        description: 'Release tag adı (boş bırakılırsa otomatik oluşturulur)'
+        description: 'Release tag adı (boş bırakılırsa otomatik)'
         required: false
         default: ''
 
 env:
   APP_MODULE: app
-  APP_NAME: Code-ioPRO
+  APP_NAME: CODEX-PRO
+  VERSION_NAME: 2.0.0
 
 jobs:
   build:
@@ -35,8 +36,8 @@ jobs:
 
       - name: 📅 Değişkenler
         run: |
-          echo "DATE=$(date +'%Y-%m-%d')"            >> $GITHUB_ENV
-          echo "BUILD_NUM=${{ github.run_number }}"  >> $GITHUB_ENV
+          echo "DATE=$(date +'%Y-%m-%d')"              >> $GITHUB_ENV
+          echo "BUILD_NUM=${{ github.run_number }}"    >> $GITHUB_ENV
           if [ -n "${{ github.event.inputs.release_tag }}" ]; then
             echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
           else
@@ -69,14 +70,14 @@ jobs:
       - name: 📤 Release APK yükle
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DATE }}-${{ env.APP_NAME }}-v1.3.0-release-APK
+          name: ${{ env.DATE }}-${{ env.APP_NAME }}-v${{ env.VERSION_NAME }}-release
           path: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           retention-days: 90
 
       - name: 📤 Debug APK yükle
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DATE }}-${{ env.APP_NAME }}-v1.3.0-debug-APK
+          name: ${{ env.DATE }}-${{ env.APP_NAME }}-v${{ env.VERSION_NAME }}-debug
           path: ${{ env.APP_MODULE }}/build/outputs/apk/debug/*.apk
           retention-days: 30
         if: always()
@@ -86,35 +87,50 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          name: "Code-ioPRO v1.3.0 — Build #${{ env.BUILD_NUM }}"
+          name: "CODEX PRO v${{ env.VERSION_NAME }} — Build #${{ env.BUILD_NUM }}"
           body: |
-            ## 🚀 Code-ioPRO v1.3.0 — Build #${{ env.BUILD_NUM }}
+            ## 🚀 CODEX PRO v${{ env.VERSION_NAME }} — Build #${{ env.BUILD_NUM }}
 
             **Tarih:** ${{ env.DATE }}
             **Branch:** ${{ github.ref_name }}
 
-            ### ✨ v1.3.0 — Yeni Arayüz (Tam Yeniden Tasarım)
+            ---
 
-            #### 🎨 Görsel & UX
-            - 🟠 Replit ilhamlı tam arayüz yeniden tasarımı (turuncu accent)
-            - 🗂️ Chat ekranında 4 mod sekmesi: 🎙️ Sesli · 💬 Sohbet · 💻 Kod · 🧠 AI
-            - 📱 Tüm butonlar dokunma dostu yeniden boyutlandırıldı (min 44dp)
-            - 🧭 Bottom nav 66dp yüksekliğe çıkarıldı, ikonlar 24dp
-            - 💨 Kompakt model seçici — sağ altta küçük pill, tam ekranı kaplamaz
+            ### ✨ v2.0.0 — TAM ARAYÜZ YENİDEN TASARIM
+
+            #### 🎨 Yeni Tasarım (Codex Pro IDE)
+            - 🗂️ **DrawerLayout sidebar** — Sol kaydırma navigasyonu (Dashboard, Sohbet, Kod Editörü, AI Market, Terminal, Dosyalar, Görevler, Sub Agt'lar, Veritabanı, API, Ayarlar, Kısayollar)
+            - 🔝 **CODEX PRO header bar** — 🚀 Logo + v2.0.0 badge + üst sekme navigasyonu (Sohbet | Kod Editörü | AI Market | Ayarlar)
+            - 🧠 **Dashboard** — Brain animasyonu, "Merhaba Muhammed 👋", aksiyon butonları, istatistik kartlar (Toplam Proje, Dosya, Kod Satırı, Çalışan Agent)
+            - 📊 **Model Yöneticisi paneli** — GPT-4o, Claude 3.5 Sonnet, Claude 3 Haiku, GPT-4 Turbo, GPT Nano, Gemini 1.5 Pro, Mistral Large
+            - 🤖 **Sub Agent Durumları** — Gerçek zamanlı agent progress barları
+            - 🟢 **Status bar** — HAZIR | Proje: Code-ioPRO | Branch: main | 8 Agent Aktif
+
+            #### 🌌 Deep Space Blue Tema
+            - Ana arka plan: #07090F (çok koyu mavi-siyah)
+            - Kart arka planı: #0F1627
+            - Elektrik mavi accent: #1E64FF
+            - Sidebar active: mavi sol border + highlight
+
+            #### 💬 Chat Ekranı
+            - 4 mod sekmesi: 🎙 Sesli · 💬 Sohbet · 💻 Kod · 🧠 AI
+            - Kompakt model seçici pill (ekranı kaplamaz)
+            - DuckDuckGo referansları tamamen kaldırıldı
 
             #### 🤖 AI Market
-            - ✅ Gerçek sağlayıcı logoları (OpenAI, Claude, Gemini, Groq, Mistral…)
-            - ❌ Google/DuckDuckGo logoları tamamen kaldırıldı
-            - 🔍 Arama çubuğu eklendi
-            - 🎴 Yeni kart tasarımı, düzgün badge'ler
+            - Gerçek sağlayıcı logoları (OpenAI, Anthropic, Gemini, Groq, Mistral...)
+            - Arama çubuğu + gelişmiş filtreler
 
             #### 🔧 Sistem
-            - 🤐 Sistem promptu düzeltildi (geliştirici: Muhammed)
-            - 🔗 Varsayılan chat URL güncellendi
-            - 📦 versionCode: 16 → 17 / versionName: 1.2.0 → 1.3.0
+            - Sistem promptu düzeltildi: geliştirici = Muhammed, uygulama = CODEX PRO
+            - versionCode: 17 → 20 / versionName: 1.3.0 → 2.0.0
+            - DrawerLayout bağımlılığı eklendi
 
-            ### 📱 Kurulum:
-            APK dosyasını cihaza indirin, **Bilinmeyen kaynaklara izin ver** ile kurun.
+            ---
+
+            ### 📱 Kurulum
+            APK dosyasını cihaza indirin → **Bilinmeyen kaynaklara izin ver** → Kur
+
           files: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
