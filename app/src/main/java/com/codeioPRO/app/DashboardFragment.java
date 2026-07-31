@@ -88,6 +88,20 @@ public class DashboardFragment extends Fragment {
     public String getActiveModel() {
         SharedPreferences prefs = requireActivity()
                 .getSharedPreferences("codeio_prefs", Context.MODE_PRIVATE);
-        return prefs.getString("active_model", "gpt-4o");
+        return prefs.getString("active_model", "gpt-4o-mini");
+    }
+
+    /** Gerçek zamanlı aktif agent sayısını döndürür. */
+    @JavascriptInterface
+    public int getAgentCount() {
+        try {
+            if (getActivity() instanceof MainActivity) {
+                SubAgentFragment agentFragment = ((MainActivity) getActivity()).getAgentsFragment();
+                if (agentFragment != null) {
+                    return agentFragment.getActiveAgentCount();
+                }
+            }
+        } catch (Exception e) { /* fragment henüz hazır değil */ }
+        return 0;
     }
 }

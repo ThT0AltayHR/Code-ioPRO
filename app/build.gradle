@@ -57,6 +57,11 @@ android {
             def releaseSigning = signingConfigs.findByName('release')
             if (releaseSigning != null && releaseSigning.storeFile != null) {
                 signingConfig releaseSigning
+            } else {
+                // DÜZELTME: İmzasız APK → "paket geçersiz" hatasına neden olur.
+                // Özel imzalama yapılandırılmadığında debug imzasını kullan;
+                // böylece APK her zaman imzalı olur ve cihaza yüklenebilir.
+                signingConfig signingConfigs.debug
             }
         }
     }

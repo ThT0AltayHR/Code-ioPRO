@@ -54,7 +54,7 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
 .session-model{font-size:11px;color:var(--txt2);flex:1}
 .status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .dot-running{background:var(--green);animation:dotPulse 1s ease-in-out infinite}
-.dot-waiting{background:var(--yellow)}
+.dot-waiting,.dot-planning{background:var(--yellow)}
 .dot-idle,.dot-stopped{background:#555}
 .dot-done{background:var(--green)}
 .dot-error{background:var(--red)}
@@ -92,12 +92,12 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
   <textarea class="project-input" id="projectInput" placeholder="Projeyi açıklayın... (örn: Hava durumu gösteren bir Android uygulaması yap)" rows="3"></textarea>
   <div class="controls">
     <select class="model-select" id="modelSelect">
-      <option value="gpt-4o-mini">GPT-5.4 nano (Önerilen)</option>
-      <option value="gpt-4o">GPT-5.4 mini</option>
-      <option value="claude-3-5-haiku-20241022">Claude Haiku 4.5</option>
-      <option value="claude-3-5-sonnet-20241022">Claude Sonnet 3.5</option>
-      <option value="mistral-small">Mistral Small 4</option>
-      <option value="gemma-2-27b-it">Gemma 4 31B</option>
+      <option value="gpt-4o-mini">GPT-4o mini (Önerilen)</option>
+      <option value="gpt-4o">GPT-4o</option>
+      <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+      <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+      <option value="mistral-small">Mistral Small</option>
+      <option value="gemma-2-27b-it">Gemma 2 27B</option>
       <option value="meta-llama/llama-3.1-405b">LLaMA 3.1 405B</option>
     </select>
     <div class="mode-toggle">
@@ -144,7 +144,6 @@ function dispatch(){
   if(typeof AgentBridge!='undefined'){
     AgentBridge.dispatchProject(desc,model,currentMode);
   } else {
-    // AgentBridge not ready yet
     console.warn('AgentBridge not initialized');
   }
 }
@@ -154,7 +153,8 @@ function stopAll(){
 }
 
 function getRoleClass(role){
-  if(role.includes('Ana'))return 'role-main';
+  if(!role)return'role-sec';
+  if(role.includes('Ana')||role.includes('Orkestra'))return 'role-main';
   if(role.includes('Kod'))return 'role-code';
   if(role.includes('Fix')||role.includes('Test'))return 'role-fix';
   if(role.includes('UI'))return 'role-ui';
@@ -181,14 +181,13 @@ function renderSessions(){
   document.getElementById('statsBar').style.display='flex';
   document.getElementById('stopBtn').style.display=hasRunning?'block':'none';
 
-  var totalFiles=sessions.reduce(function(a,s){return a+s.filesCreated;},0);
+  var totalFiles=sessions.reduce(function(a,s){return a+(s.filesCreated||0);},0);
   document.getElementById('statAgents').textContent=sessions.length;
   document.getElementById('statFiles').textContent=totalFiles;
   document.getElementById('statStatus').textContent=hasRunning?'Çalışıyor':'Tamamlandı';
 
   c.innerHTML='<div class="sessions-title">Aktif Agentlar</div>';
-  sessions.forEach(function(s,i){
-    var expanded=false;
+  sessions.forEach(function(s){
     var statusClass='dot-'+(s.status||'idle');
     var roleClass=getRoleClass(s.role||'');
     var logsHtml=(s.logs||[]).map(function(l){
@@ -199,12 +198,12 @@ function renderSessions(){
     card.className='session-card '+(s.status||'idle');
     card.innerHTML=
       '<div class="session-header" onclick="toggleLogs(this)">' +
-        '<span class="agent-role '+roleClass+'">'+s.role+'</span>' +
-        '<span class="session-model">'+s.model+'</span>' +
+        '<span class="agent-role '+roleClass+'">'+(s.role||'Agent')+'</span>' +
+        '<span class="session-model">'+(s.model||'')+'</span>' +
         '<div class="status-dot '+statusClass+'"></div>' +
         '<span class="expand-arrow">▼</span>' +
       '</div>' +
-      '<div class="session-task">'+s.currentTask+'</div>' +
+      '<div class="session-task">'+(s.currentTask||'Bekliyor...')+'</div>' +
       (s.filesCreated?'<div class="session-files">📁 '+s.filesCreated+' dosya oluşturuldu</div>':'') +
       '<div class="session-logs">' + (logsHtml||'<div class="log-entry" style="color:#555">Henüz log yok...</div>') + '</div>';
     c.appendChild(card);
@@ -223,8 +222,6 @@ window.initAgentUI=function(model,mode,sessionsJson){
   if(sessionsJson)updateSessions(sessionsJson);
 };
 window.updateSessions=updateSessions;
-
-
 </script>
 </body>
 </html>

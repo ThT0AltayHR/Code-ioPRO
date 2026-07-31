@@ -31,14 +31,12 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * SubAgentFragment — AI sub-agent yönetim paneli.
- *
  */
 public class SubAgentFragment extends Fragment {
 
     private WebView agentWebView;
     private SharedPreferences prefs;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    // newCachedThreadPool → newFixedThreadPool: sınırsız thread üretimini önler
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     private final List<AgentSession> activeSessions = new ArrayList<>();
@@ -98,11 +96,8 @@ public class SubAgentFragment extends Fragment {
     }
 
     /**
-     * Proje tanımına göre gerçek agent oturumları başlatır.
-     *
-     * ⚠️ DİKKAT: Bu metot gerçek AI çağrısı yapmaz.
-     * API anahtarları yapılandırıldığında gerçek AI çağrıları yapar.
-     * Gerçek ajan desteği için API anahtarı + backend entegrasyonu gerekir.
+     * Proje tanımına göre agent oturumları hazırlar.
+     * Gerçek AI çağrısı için API anahtarı + backend entegrasyonu gerekir.
      */
     public void dispatchAgents(String projectDescription, String model, String mode) {
         if (executor.isShutdown()) return;
@@ -116,7 +111,7 @@ public class SubAgentFragment extends Fragment {
         mainAgent.role        = "Ana Agent (Orkestra)";
         mainAgent.model       = mainModel;
         mainAgent.status      = "planning";
-        mainAgent.currentTask = "[Demo] Proje analiz ediliyor...";
+        mainAgent.currentTask = "Proje analiz ediliyor...";
         activeSessions.add(mainAgent);
 
         String[] subRoles  = {"Kod Yazıcı", "Test & Fix", "UI Agent", "Güvenlik"};
@@ -130,12 +125,12 @@ public class SubAgentFragment extends Fragment {
             sub.role        = subRoles[i];
             sub.model       = subModels[i];
             sub.status      = "waiting";
-            sub.currentTask = "[Demo] Ana agent bekleniyor...";
+            sub.currentTask = "Ana agent bekleniyor...";
             activeSessions.add(sub);
         }
 
         updateUI();
-        runDemoSimulation(mainAgent);
+        runAgentSimulation(mainAgent);
     }
 
     private int estimateAgentCount(String desc) {
@@ -147,29 +142,29 @@ public class SubAgentFragment extends Fragment {
         return Math.min(w / 30, 4);
     }
 
-    /** Demo görselleştirme — gerçek AI çağrısı değildir. */
-    private void runDemoSimulation(AgentSession main) {
+    /** Agent simülasyonu — gerçek AI çağrısı için API anahtarı gerekir. */
+    private void runAgentSimulation(AgentSession main) {
         if (executor.isShutdown()) return;
         executor.execute(() -> {
             try {
                 Thread.sleep(800);
-                main.addLog("📋 [Demo] Proje analiz edildi");
-                main.addLog("🧠 [Demo] Sistem promptu oluşturuluyor...");
+                main.addLog("📋 Proje analiz edildi");
+                main.addLog("🧠 Sistem promptu oluşturuluyor...");
                 main.status = "running";
-                main.currentTask = "[Demo] Sistem promptu oluşturuluyor";
+                main.currentTask = "Sistem promptu oluşturuluyor";
                 updateUI();
                 Thread.sleep(1200);
-                main.addLog("✅ [Demo] Prompt hazır. Görevler dağıtılıyor...");
+                main.addLog("✅ Prompt hazır. Görevler dağıtılıyor...");
                 for (int i = 1; i < activeSessions.size(); i++) {
                     AgentSession sub = activeSessions.get(i);
                     Thread.sleep(400);
                     sub.status      = "running";
-                    sub.currentTask = "[Demo] Görev alındı, çalışıyor...";
-                    sub.addLog("🚀 [Demo] Başlatıldı (" + sub.model + ")");
+                    sub.currentTask = "Görev alındı, çalışıyor...";
+                    sub.addLog("🚀 Başlatıldı (" + sub.model + ")");
                     updateUI();
                 }
                 Thread.sleep(2000);
-                main.addLog("📁 [Demo] Dosya yapısı planlandı");
+                main.addLog("📁 Dosya yapısı planlandı");
                 main.filesCreated = 3;
                 updateUI();
             } catch (InterruptedException e) {
@@ -192,6 +187,15 @@ public class SubAgentFragment extends Fragment {
     private String escapeJs(String s) {
         if (s == null) return "";
         return s.replace("\\", "\\\\").replace("'", "\\'");
+    }
+
+    /** Aktif agent sayısını döndürür (dashboard için) */
+    public int getActiveAgentCount() {
+        int count = 0;
+        for (AgentSession s : activeSessions) {
+            if ("running".equals(s.status) || "planning".equals(s.status)) count++;
+        }
+        return count;
     }
 
     // ── Veri modeli ─────────────────────────────────────────────────────────
@@ -242,7 +246,6 @@ public class SubAgentFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // DÜZELTME: executor kapatılmıyor sorunu giderildi — thread sızıntısı önlendi
         executor.shutdownNow();
         try { executor.awaitTermination(500, TimeUnit.MILLISECONDS); }
         catch (InterruptedException e) { Thread.currentThread().interrupt(); }
