@@ -288,12 +288,6 @@ public class ChatFragment extends Fragment {
         if (tabCode  != null) tabCode.setOnClickListener(v2  -> selectChatMode("code",  tabCode));
         if (tabAI    != null) tabAI.setOnClickListener(v2    -> selectChatMode("ai",    tabAI));
 
-        // Settings button in header
-        View btnSettings = view.findViewById(R.id.btn_chat_settings);
-        if (btnSettings != null) btnSettings.setOnClickListener(v2 -> {
-            if (chatWebView != null) chatWebView.evaluateJavascript(SETTINGS_BTN_JS, null);
-        });
-
         chatWebView = view.findViewById(R.id.chatWebView);
 
         WebSettings ws = chatWebView.getSettings();
