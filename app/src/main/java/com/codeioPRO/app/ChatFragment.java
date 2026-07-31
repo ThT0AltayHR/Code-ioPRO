@@ -37,6 +37,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.app.DownloadManager;
 import android.media.MediaScannerConnection;
@@ -66,6 +67,16 @@ public class ChatFragment extends Fragment {
     private long pendingDownloadContentLength;
     private boolean isPendingBlob;
     private String pendingBlobData, pendingBlobMimetype, pendingBlobContentDisposition, pendingBlobCurrentUrl;
+
+
+    // Chat mode tabs
+    private TextView tabVoice, tabChat, tabCode, tabAI;
+    private String currentChatMode = "chat";
+
+    // System prompts per mode
+    private static final String PROMPT_CHAT = "Günlük sohbet asistanısın. Sıcak, samimi ve doğal konuş. Seni Muhammed geliştirdi.";
+    private static final String PROMPT_CODE = "Kod yazma ve geliştirme uzmanısın. Anlaşılır, çalışan kod yaz ve açıkla. Seni Muhammed geliştirdi.";
+    private static final String PROMPT_AI   = "Gelişmiş yapay zeka asistanısın. Derin analiz, akıl yürütme ve problem çözme konusunda yardım et. Seni Muhammed geliştirdi.";
 
     // Model & agent mode
     private String currentModel = "gpt-4o-mini";
@@ -193,75 +204,52 @@ public class ChatFragment extends Fragment {
         "if(!inject()){var obs=new MutationObserver(function(){if(inject())obs.disconnect();});" +
         "obs.observe(document.body,{childList:true,subtree:true});}})();";
 
-    // Model switching overlay injected into duck.ai WebView
+    // Model switching — compact floating pill (NO full-screen overlay)
     private static final String MODEL_SWITCHER_JS =
         "(function(){if(window.codeioModelInjected)return;window.codeioModelInjected=true;" +
         "var MODELS=[" +
-        "{id:'gpt-4o-mini',label:'GPT-5.4 nano',desc:'Günlük kullanım için en iyisi',icon:'🟢'}," +
-        "{id:'gpt-4o',label:'GPT-5.4 mini',desc:'Sağlam ama sınırları daha çabuk tüketir',icon:'🟢'}," +
-        "{id:'claude-3-5-haiku-20241022',label:'Claude Haiku 4.5',desc:'Sağlam ama sınırları daha çabuk tüketir',icon:'✳'}," +
-        "{id:'mistral-small',label:'Mistral Small 4',desc:'Hafif ve hızlı',icon:'🔴'}," +
-        "{id:'meta-llama/llama-3.1-405b',label:'gpt-oss 120B',desc:'Açık kaynak güç',icon:'🔵'}," +
-        "{id:'gemma-2-27b-it',label:'Gemma 4 31B',desc:'Beta',icon:'🔵',beta:true}" +
+        "{id:'gpt-4o-mini',label:'GPT-4o mini',icon:'🟢'}," +
+        "{id:'gpt-4o',label:'GPT-4o',icon:'🟢'}," +
+        "{id:'claude-3-5-haiku-20241022',label:'Claude Haiku',icon:'🟠'}," +
+        "{id:'mistral-small',label:'Mistral Small',icon:'🔴'}," +
+        "{id:'meta-llama/llama-3.1-405b',label:'Llama 3.1 405B',icon:'🔵'}," +
+        "{id:'gemma-2-27b-it',label:'Gemma 2 27B',icon:'🔵'}" +
         "];" +
-        "var MODES=[{id:'economy',label:'Economy 🌿',tip:'Daha az kota, küçük projeler'},{id:'power',label:'Power ⚡',tip:'En iyi model, maksimum kalite'}];" +
         "var curModel=typeof Android!='undefined'?Android.getCurrentModel():'gpt-4o-mini';" +
-        "var curMode=typeof Android!='undefined'?Android.getAgentMode():'economy';" +
-        // Floating toolbar
         "var bar=document.createElement('div');" +
-        "bar.id='codeio-model-bar';" +
-        "bar.style='position:fixed;bottom:72px;left:50%;transform:translateX(-50%);z-index:9999;" +
-        "display:flex;align-items:center;gap:8px;background:#131D2E;border:1px solid #1E2A40;" +
-        "border-radius:24px;padding:6px 14px;box-shadow:0 4px 24px rgba(0,0,0,.6);';" +
-        // Model button
-        "var mBtn=document.createElement('button');" +
-        "mBtn.id='codeio-model-btn';" +
-        "mBtn.style='background:none;border:none;color:#00D4FF;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;padding:0;';" +
-        "function updateModelBtn(){var m=MODELS.find(function(x){return x.id===curModel;})||MODELS[0];" +
-        "mBtn.innerHTML=m.icon+' '+m.label+' <span style=\"color:#8892A4;font-size:10px\">▼</span>';}" +
-        "updateModelBtn();" +
-        // Mode toggle
-        "var modeDiv=document.createElement('div');" +
-        "modeDiv.style='display:flex;gap:4px;border-left:1px solid #1E2A40;padding-left:10px;';" +
-        "MODES.forEach(function(mo){" +
-        "var b=document.createElement('button');" +
-        "b.textContent=mo.label;" +
-        "b.dataset.mid=mo.id;" +
-        "b.style='background:'+(curMode===mo.id?'#00D4FF':'#0b1120')+';color:'+(curMode===mo.id?'#000':'#8892A4')+" +
-        "';border:1px solid '+(curMode===mo.id?'#00D4FF':'#1E2A40')+';border-radius:14px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;transition:.2s;';" +
-        "b.onclick=function(){curMode=mo.id;if(typeof Android!='undefined')Android.setAgentMode(curMode);" +
-        "modeDiv.querySelectorAll('button').forEach(function(bb){" +
-        "var active=bb.dataset.mid===curMode;" +
-        "bb.style.background=active?'#00D4FF':'#0b1120';" +
-        "bb.style.color=active?'#000':'#8892A4';" +
-        "bb.style.borderColor=active?'#00D4FF':'#1E2A40';});};" +
-        "modeDiv.appendChild(b);});" +
-        "bar.appendChild(mBtn);bar.appendChild(modeDiv);document.body.appendChild(bar);" +
-        // Model picker sheet
-        "var sheet=document.createElement('div');" +
-        "sheet.style='display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.7);align-items:flex-end;';" +
-        "var inner=document.createElement('div');" +
-        "inner.style='background:#131D2E;border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;';" +
-        "inner.innerHTML='<div style=\"text-align:center;margin-bottom:16px;font-weight:700;color:#fff;font-size:16px\">Model Seç</div>';" +
+        "bar.id='codeio-bar';" +
+        "bar.style='position:fixed;bottom:14px;right:14px;z-index:9999;display:flex;align-items:center;gap:6px;" +
+        "background:rgba(20,24,36,0.96);border:1px solid #252E42;border-radius:20px;padding:7px 14px;" +
+        "box-shadow:0 4px 20px rgba(0,0,0,.7);backdrop-filter:blur(8px);max-width:220px;';" +
+        "var dot=document.createElement('div');" +
+        "dot.style='width:8px;height:8px;border-radius:50%;background:#F26207;flex-shrink:0;';" +
+        "var lbl=document.createElement('span');" +
+        "lbl.style='color:#F0F2F5;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;';" +
+        "function refreshLabel(){var m=MODELS.find(function(x){return x.id===curModel;})||MODELS[0];lbl.textContent=m.label;}" +
+        "refreshLabel();" +
+        "bar.appendChild(dot);bar.appendChild(lbl);" +
+        "document.body.appendChild(bar);" +
+        // Compact dropdown picker
+        "var picker=document.createElement('div');" +
+        "picker.style='display:none;position:fixed;bottom:60px;right:14px;z-index:10000;" +
+        "background:#141824;border:1px solid #252E42;border-radius:16px;padding:10px;" +
+        "width:220px;box-shadow:0 8px 32px rgba(0,0,0,.8);';" +
         "MODELS.forEach(function(m){" +
         "var row=document.createElement('div');" +
-        "row.style='display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:12px;cursor:pointer;margin-bottom:4px;" +
-        "background:'+(curModel===m.id?'rgba(0,212,255,.1)':'none')+';border:1px solid '+(curModel===m.id?'#00D4FF':'#1E2A40')+';" +
-        "transition:.15s;';" +
-        "row.innerHTML='<span style=\"font-size:20px\">'+m.icon+'</span>' +" +
-        "'<div style=\"flex:1\"><div style=\"color:#fff;font-weight:700;font-size:14px\">'+(m.beta?m.label+' <span style=\"font-size:9px;background:#7C4DFF;color:#fff;padding:1px 5px;border-radius:4px\">BETA</span>':m.label)+'</div>' +" +
-        "'<div style=\"color:#8892A4;font-size:11px\">'+m.desc+'</div></div>' +" +
-        "'<span style=\"color:#00D4FF;font-size:18px\">'+(curModel===m.id?'✓':'')+'</span>';" +
-        "row.onclick=function(){curModel=m.id;updateModelBtn();" +
+        "row.style='display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;" +
+        "background:'+(curModel===m.id?'rgba(242,98,7,.1)':'transparent')+';" +
+        "border:1px solid '+(curModel===m.id?'#F26207':'transparent')+';margin-bottom:4px;transition:.15s;';" +
+        "row.innerHTML='<span>'+m.icon+'</span><span style="color:#F0F2F5;font-size:13px;font-weight:600">'+m.label+'</span>';" +
+        "row.onclick=function(){curModel=m.id;refreshLabel();" +
         "if(typeof Android!='undefined')Android.setModel(curModel);" +
-        "sheet.style.display='none';inner.querySelectorAll('div[data-mid]').forEach(function(r){" +
-        "var a=r.dataset.mid===curModel;" +
-        "r.style.background=a?'rgba(0,212,255,.1)':'none';" +
-        "r.style.borderColor=a?'#00D4FF':'#1E2A40';});};" +
-        "row.dataset.mid=m.id;inner.appendChild(row);});" +
-        "sheet.appendChild(inner);document.body.appendChild(sheet);" +
-        "mBtn.onclick=function(){sheet.style.display='flex';};" +
-        "sheet.onclick=function(e){if(e.target===sheet)sheet.style.display='none';};})();";
+        "picker.style.display='none';" +
+        "picker.querySelectorAll('div').forEach(function(r,i){if(r.style){r.style.background=MODELS[i]&&MODELS[i].id===curModel?'rgba(242,98,7,.1)':'transparent';r.style.borderColor=MODELS[i]&&MODELS[i].id===curModel?'#F26207':'transparent';}});};" +
+        "picker.appendChild(row);});" +
+        "document.body.appendChild(picker);" +
+        "bar.onclick=function(){picker.style.display=picker.style.display==='none'?'block':'none';};" +
+        "document.addEventListener('click',function(e){if(!bar.contains(e.target)&&!picker.contains(e.target))picker.style.display='none';});" +
+        "})()";
+
 
     private static final String VOICE_JS =
         "(function(){function tryClick(){" +
@@ -290,6 +278,22 @@ public class ChatFragment extends Fragment {
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
 
         progressBar = view.findViewById(R.id.progressBar);
+        // Setup chat mode tabs
+        tabVoice = view.findViewById(R.id.tab_voice);
+        tabChat  = view.findViewById(R.id.tab_chat);
+        tabCode  = view.findViewById(R.id.tab_code);
+        tabAI    = view.findViewById(R.id.tab_ai);
+        if (tabVoice != null) tabVoice.setOnClickListener(v2 -> selectChatMode("voice", tabVoice));
+        if (tabChat  != null) tabChat.setOnClickListener(v2  -> selectChatMode("chat",  tabChat));
+        if (tabCode  != null) tabCode.setOnClickListener(v2  -> selectChatMode("code",  tabCode));
+        if (tabAI    != null) tabAI.setOnClickListener(v2    -> selectChatMode("ai",    tabAI));
+
+        // Settings button in header
+        View btnSettings = view.findViewById(R.id.btn_chat_settings);
+        if (btnSettings != null) btnSettings.setOnClickListener(v2 -> {
+            if (chatWebView != null) chatWebView.evaluateJavascript(SETTINGS_BTN_JS, null);
+        });
+
         chatWebView = view.findViewById(R.id.chatWebView);
 
         WebSettings ws = chatWebView.getSettings();
@@ -335,8 +339,8 @@ public class ChatFragment extends Fragment {
 
     private void loadChat() {
         SharedPreferences p = requireActivity().getSharedPreferences("codeio_prefs", Context.MODE_PRIVATE);
-        String url = p.getString("custom_api_url", "https://duck.ai");
-        if (url == null || url.trim().isEmpty()) url = "https://duck.ai";
+        String url = p.getString("custom_api_url", "https://chat.openai.com");
+        if (url == null || url.trim().isEmpty()) url = "https://chat.openai.com";
         chatWebView.loadUrl(url);
     }
 
@@ -395,6 +399,41 @@ public class ChatFragment extends Fragment {
         } else if (Intent.ACTION_SEND.equals(action) && type != null && (type.startsWith("image/") || "application/pdf".equals(type))) {
             Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (uri != null) pendingSharedFileUri = uri;
+        }
+    }
+
+
+    // ── Chat mode switching ──────────────────────────────────────────────────
+    private void selectChatMode(String mode, TextView selectedTab) {
+        currentChatMode = mode;
+        // Update tab visuals
+        for (TextView t : new TextView[]{tabVoice, tabChat, tabCode, tabAI}) {
+            if (t == null) continue;
+            if (t == selectedTab) {
+                t.setBackgroundResource(R.drawable.tab_selected);
+                t.setTextColor(getResources().getColor(R.color.accent, null));
+            } else {
+                t.setBackgroundResource(R.drawable.tab_unselected);
+                t.setTextColor(getResources().getColor(R.color.text_secondary, null));
+            }
+        }
+        // Inject mode-specific system prompt
+        String prompt;
+        switch (mode) {
+            case "voice":
+                if (chatWebView != null) chatWebView.evaluateJavascript(VOICE_JS, null);
+                return;
+            case "code":  prompt = PROMPT_CODE; break;
+            case "ai":    prompt = PROMPT_AI;   break;
+            default:       prompt = PROMPT_CHAT; break;
+        }
+        final String p = prompt.replace("'", "\\'").replace("\"", "\\\"");
+        if (chatWebView != null) {
+            chatWebView.evaluateJavascript(
+                "(function(){" +
+                "var ta=document.querySelector('textarea,[contenteditable]');" +
+                "if(ta){ta.placeholder='" + p.substring(0, Math.min(p.length(), 80)) + "...';}"+
+                "})()", null);
         }
     }
 

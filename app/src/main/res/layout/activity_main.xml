@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_primary">
@@ -8,19 +9,23 @@
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottom_navigation_custom" />
+        android:paddingBottom="66dp" />
 
-    <!-- Custom 6-tab bottom nav (BottomNavigationView max 5 sınırını aşar) -->
+    <!-- Bottom Navigation — Replit-style pill bar -->
     <LinearLayout
         android:id="@+id/bottom_navigation_custom"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="66dp"
         android:orientation="horizontal"
         android:background="@color/bg_bottom_nav"
-        android:layout_alignParentBottom="true"
-        android:elevation="8dp">
+        android:layout_gravity="bottom"
+        android:elevation="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="6dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
 
-        <!-- Tab: Chat/Ajan -->
+        <!-- Chat -->
         <LinearLayout
             android:id="@+id/nav_chat"
             android:layout_width="0dp"
@@ -28,15 +33,14 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
+            android:padding="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
             <ImageView
                 android:id="@+id/nav_chat_icon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_nav_agent"
                 android:scaleType="fitCenter" />
             <TextView
@@ -44,12 +48,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_chat"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:maxLines="1"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="3dp"
+                android:letterSpacing="0.02" />
         </LinearLayout>
 
-        <!-- Tab: Dosyalar -->
+        <!-- Dosyalar -->
         <LinearLayout
             android:id="@+id/nav_files"
             android:layout_width="0dp"
@@ -57,15 +62,14 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
+            android:padding="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
             <ImageView
                 android:id="@+id/nav_files_icon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_nav_files"
                 android:scaleType="fitCenter" />
             <TextView
@@ -73,12 +77,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_files"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:maxLines="1"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="3dp"
+                android:letterSpacing="0.02" />
         </LinearLayout>
 
-        <!-- Tab: Shell -->
+        <!-- Terminal -->
         <LinearLayout
             android:id="@+id/nav_shell"
             android:layout_width="0dp"
@@ -86,15 +91,14 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
+            android:padding="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
             <ImageView
                 android:id="@+id/nav_shell_icon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_nav_shell"
                 android:scaleType="fitCenter" />
             <TextView
@@ -102,12 +106,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_shell"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:maxLines="1"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="3dp"
+                android:letterSpacing="0.02" />
         </LinearLayout>
 
-        <!-- Tab: Market -->
+        <!-- AI Market -->
         <LinearLayout
             android:id="@+id/nav_market"
             android:layout_width="0dp"
@@ -115,15 +120,14 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
+            android:padding="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
             <ImageView
                 android:id="@+id/nav_market_icon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_nav_market"
                 android:scaleType="fitCenter" />
             <TextView
@@ -131,12 +135,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_market"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:maxLines="1"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="3dp"
+                android:letterSpacing="0.02" />
         </LinearLayout>
 
-        <!-- Tab: Secrets -->
+        <!-- Secrets -->
         <LinearLayout
             android:id="@+id/nav_secrets"
             android:layout_width="0dp"
@@ -144,15 +149,14 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
+            android:padding="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
             <ImageView
                 android:id="@+id/nav_secrets_icon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_nav_secrets"
                 android:scaleType="fitCenter" />
             <TextView
@@ -160,12 +164,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_secrets"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:maxLines="1"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="3dp"
+                android:letterSpacing="0.02" />
         </LinearLayout>
 
-        <!-- Tab: Agentlar -->
+        <!-- Agents -->
         <LinearLayout
             android:id="@+id/nav_agents"
             android:layout_width="0dp"
@@ -173,15 +178,14 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center"
-            android:paddingTop="6dp"
-            android:paddingBottom="4dp"
+            android:padding="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true">
             <ImageView
                 android:id="@+id/nav_agents_icon"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/ic_nav_agent2"
                 android:scaleType="fitCenter" />
             <TextView
@@ -189,11 +193,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/nav_agents"
-                android:textSize="9sp"
+                android:textSize="10sp"
                 android:maxLines="1"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="3dp"
+                android:letterSpacing="0.02" />
         </LinearLayout>
 
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

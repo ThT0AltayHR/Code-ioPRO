@@ -2,7 +2,6 @@
 <resources>
 
     <style name="Theme.CodeioPRO" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary colors -->
         <item name="colorPrimary">@color/accent</item>
         <item name="colorPrimaryDark">@color/bg_primary</item>
         <item name="colorAccent">@color/accent</item>
@@ -15,56 +14,40 @@
         <item name="android:colorBackground">@color/bg_primary</item>
         <item name="colorOnBackground">@color/text_primary</item>
         <item name="colorError">@color/accent_red</item>
-
-        <!-- Window -->
         <item name="android:windowBackground">@color/bg_primary</item>
         <item name="android:statusBarColor">@color/status_bar</item>
         <item name="android:navigationBarColor">@color/nav_bar</item>
         <item name="android:windowLightStatusBar">false</item>
-
-        <!-- Text -->
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:textColorHint">@color/text_hint</item>
-
-        <!-- Bottom Navigation -->
-
-        <!-- AlertDialog -->
         <item name="alertDialogTheme">@style/Theme.CodeioPRO.AlertDialog</item>
-
-        <!-- Input -->
         <item name="editTextStyle">@style/Widget.CodeioPRO.EditText</item>
     </style>
 
-
-    <style name="Theme.CodeioPRO.AlertDialog" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
-        <item name="android:background">@color/bg_card</item>
+    <style name="Theme.CodeioPRO.AlertDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:colorBackground">@color/bg_card</item>
         <item name="android:textColorPrimary">@color/text_primary</item>
-        <item name="colorPrimary">@color/accent</item>
-        <item name="buttonBarPositiveButtonStyle">@style/Widget.CodeioPRO.Button.Text.Accent</item>
-        <item name="buttonBarNegativeButtonStyle">@style/Widget.CodeioPRO.Button.Text.Secondary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.CodeioPRO.Button.Dialog</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.CodeioPRO.Button.Dialog.Negative</item>
     </style>
 
-    <style name="Widget.CodeioPRO.Button.Text.Accent" parent="Widget.MaterialComponents.Button.TextButton">
+    <style name="Widget.CodeioPRO.Button.Dialog" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">@color/accent</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Widget.CodeioPRO.Button.Text.Secondary" parent="Widget.MaterialComponents.Button.TextButton">
+    <style name="Widget.CodeioPRO.Button.Dialog.Negative" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">@color/text_secondary</item>
     </style>
 
-    <style name="Widget.CodeioPRO.EditText" parent="Widget.AppCompat.EditText">
+    <style name="Widget.CodeioPRO.EditText" parent="Widget.MaterialComponents.TextInputEditText.OutlinedBox">
         <item name="android:background">@color/bg_input</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textColorHint">@color/text_hint</item>
-    </style>
-
-    <!-- Translucent theme for Ask/Chat overlay activities -->
-    <style name="Theme.CodeioPRO.Translucent" parent="Theme.CodeioPRO">
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:backgroundDimAmount">0.6</item>
+        <item name="boxStrokeColor">@color/border</item>
     </style>
 
 </resources>

@@ -35,12 +35,12 @@ jobs:
 
       - name: 📅 Değişkenler
         run: |
-          echo "DATE=$(date +'%Y-%m-%d')"      >> $GITHUB_ENV
-          echo "BUILD_NUM=${{ github.run_number }}" >> $GITHUB_ENV
+          echo "DATE=$(date +'%Y-%m-%d')"            >> $GITHUB_ENV
+          echo "BUILD_NUM=${{ github.run_number }}"  >> $GITHUB_ENV
           if [ -n "${{ github.event.inputs.release_tag }}" ]; then
             echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
           else
-            echo "RELEASE_TAG=build-${{ github.run_number }}" >> $GITHUB_ENV
+            echo "RELEASE_TAG=build-${{ github.run_number }}"         >> $GITHUB_ENV
           fi
 
       - name: ☕ JDK 17 kur
@@ -53,98 +53,68 @@ jobs:
       - name: 🔐 gradlew izni
         run: chmod +x ./gradlew
 
-      - name: 📦 Gradle cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-
-      - name: 🔑 İmzalama keystore hazırla
-        run: |
-          if [ -n "${{ secrets.SIGNING_KEY }}" ]; then
-            echo "✅ GitHub Secrets'tan keystore kullanılıyor"
-            echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > /tmp/release.jks
-            echo "SIGNING_KEY_STORE_PATH=/tmp/release.jks"                        >> $GITHUB_ENV
-            echo "SIGNING_STORE_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}"   >> $GITHUB_ENV
-            echo "SIGNING_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}"             >> $GITHUB_ENV
-            echo "SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}"       >> $GITHUB_ENV
-          else
-            echo "⚠️  SIGNING_KEY bulunamadı — CI test keystore oluşturuluyor"
-            keytool -genkey -v \
-              -keystore /tmp/release.jks \
-              -alias release \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass codeio2024 -keypass codeio2024 \
-              -dname "CN=Code-ioPRO CI, OU=Dev, O=CodeioPRO, L=TR, S=TR, C=TR" \
-              2>/dev/null
-            echo "SIGNING_KEY_STORE_PATH=/tmp/release.jks" >> $GITHUB_ENV
-            echo "SIGNING_STORE_PASSWORD=codeio2024"        >> $GITHUB_ENV
-            echo "SIGNING_KEY_ALIAS=release"                >> $GITHUB_ENV
-            echo "SIGNING_KEY_PASSWORD=codeio2024"          >> $GITHUB_ENV
-          fi
-
       - name: 🏗️ Release APK derle
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        run: ./gradlew assembleRelease assembleDebug --no-daemon --stacktrace
         env:
-          SIGNING_KEY_STORE_PATH: ${{ env.SIGNING_KEY_STORE_PATH }}
-          SIGNING_STORE_PASSWORD: ${{ env.SIGNING_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS:      ${{ env.SIGNING_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD:   ${{ env.SIGNING_KEY_PASSWORD }}
+          SIGNING_KEY_STORE_PATH: ${{ secrets.SIGNING_KEY_STORE_PATH }}
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS:      ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD:   ${{ secrets.SIGNING_KEY_PASSWORD }}
 
-      - name: 🔧 Debug APK derle
-        run: ./gradlew assembleDebug --no-daemon
-        if: always()
-
-      - name: 📋 APK bilgisi
+      - name: 🔍 APK kontrol
         run: |
           echo "=== Derlenen APK'lar ==="
-          find app/build/outputs/apk -name "*.apk" -exec ls -lh {} \; 2>/dev/null || echo "APK bulunamadı"
+          find app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
 
       - name: 📤 Release APK yükle
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DATE }}-${{ env.APP_NAME }}-release-APK
+          name: ${{ env.DATE }}-${{ env.APP_NAME }}-v1.3.0-release-APK
           path: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           retention-days: 90
 
       - name: 📤 Debug APK yükle
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.DATE }}-${{ env.APP_NAME }}-debug-APK
+          name: ${{ env.DATE }}-${{ env.APP_NAME }}-v1.3.0-debug-APK
           path: ${{ env.APP_MODULE }}/build/outputs/apk/debug/*.apk
           retention-days: 30
         if: always()
 
       - name: 🚀 GitHub Release oluştur
-        if: >
-          success() &&
-          (github.event_name == 'push' ||
-           github.event_name == 'workflow_dispatch')
+        if: success()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          name: "Code-ioPRO v1.2.0 — Build #${{ env.BUILD_NUM }}"
+          name: "Code-ioPRO v1.3.0 — Build #${{ env.BUILD_NUM }}"
           body: |
-            ## 🚀 Code-ioPRO v1.2.0 — Build #${{ env.BUILD_NUM }}
+            ## 🚀 Code-ioPRO v1.3.0 — Build #${{ env.BUILD_NUM }}
 
             **Tarih:** ${{ env.DATE }}
             **Branch:** ${{ github.ref_name }}
 
-            ### ✅ v1.2.0 Değişiklikleri:
-            - 🔒 Tüm DuckDuckGo marka referansları kaldırıldı — uygulama tamamen Muhammed'e ait
-            - 🧠 Yapay zeka sistem promptu güncellendi — geliştirici kimliği korunuyor
-            - 🎨 Model seçici arayüzü iyileştirildi
-            - 📦 Default provider güncellendi (m-ai)
-            - 🔢 Version: 1.1.5 → 1.2.0 (versionCode: 15 → 16)
-            - 🛡️ Marka koruma JS enjeksiyonu eklendi
-            - ⚡ Sub-agent UI gerçek görev takibi ile güçlendirildi
-            - 🌟 Beyin animasyonu geliştirildi
+            ### ✨ v1.3.0 — Yeni Arayüz (Tam Yeniden Tasarım)
+
+            #### 🎨 Görsel & UX
+            - 🟠 Replit ilhamlı tam arayüz yeniden tasarımı (turuncu accent)
+            - 🗂️ Chat ekranında 4 mod sekmesi: 🎙️ Sesli · 💬 Sohbet · 💻 Kod · 🧠 AI
+            - 📱 Tüm butonlar dokunma dostu yeniden boyutlandırıldı (min 44dp)
+            - 🧭 Bottom nav 66dp yüksekliğe çıkarıldı, ikonlar 24dp
+            - 💨 Kompakt model seçici — sağ altta küçük pill, tam ekranı kaplamaz
+
+            #### 🤖 AI Market
+            - ✅ Gerçek sağlayıcı logoları (OpenAI, Claude, Gemini, Groq, Mistral…)
+            - ❌ Google/DuckDuckGo logoları tamamen kaldırıldı
+            - 🔍 Arama çubuğu eklendi
+            - 🎴 Yeni kart tasarımı, düzgün badge'ler
+
+            #### 🔧 Sistem
+            - 🤐 Sistem promptu düzeltildi (geliştirici: Muhammed)
+            - 🔗 Varsayılan chat URL güncellendi
+            - 📦 versionCode: 16 → 17 / versionName: 1.2.0 → 1.3.0
 
             ### 📱 Kurulum:
-            APK'yı cihaza indirin, **Bilinmeyen kaynaklara izin ver** ile kurun.
+            APK dosyasını cihaza indirin, **Bilinmeyen kaynaklara izin ver** ile kurun.
           files: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false
