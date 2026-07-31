@@ -1,35 +1,60 @@
 # ════════════════════════════════════════════════════════════════════════════
-#  Code-ioPRO — Kapsamlı ProGuard Kuralları
-#  Tüm kritik kütüphane sınıfları korunmaktadır.
+#  Code-ioPRO — Kapsamlı ProGuard / R8 Kuralları  (Build 15)
+#  NoClassDefFoundError çöküşünü önleyen kapsamlı kurallar
 # ════════════════════════════════════════════════════════════════════════════
 
 # Yığın izlerinde satır numaraları görünsün
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
 
-# Genel – tüm annotation'lar korunsun
+# Genel – tüm annotation'lar, signature, exception'lar korunsun
 -keepattributes *Annotation*
 -keepattributes Signature
 -keepattributes Exceptions
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
 
-# ── AndroidX AppCompat & Activity ────────────────────────────────────────
--keep class androidx.appcompat.** { *; }
--keep interface androidx.appcompat.** { *; }
--keep class androidx.activity.** { *; }
+# ── AndroidX Startup — KRİTİK (crash başlangıç noktası) ─────────────────
+# InitializationProvider.onCreate() burada başlar;
+# bu paketteki her sınıf korunmalıdır.
+-keep class androidx.startup.** { *; }
+-keep interface androidx.startup.** { *; }
+-keepclassmembers class * implements androidx.startup.Initializer {
+    <init>(...);
+    public java.util.List dependencies();
+    public java.lang.Object create(android.content.Context);
+}
 
 # ── AndroidX Lifecycle — KRİTİK ──────────────────────────────────────────
-# ReportFragment$ActivityInitializationListener ve tüm lifecycle sınıfları
+# ProcessLifecycleOwner Kotlin lambda'ları ($initializationListener$1 vb.)
+# R8 tarafından silinebilir; $ içeren iç sınıflar açıkça korunmalıdır.
 -keep class androidx.lifecycle.** { *; }
 -keep interface androidx.lifecycle.** { *; }
+-keep class androidx.lifecycle.ProcessLifecycleOwner { *; }
+-keep class androidx.lifecycle.ProcessLifecycleOwner$* { *; }
+-keep class androidx.lifecycle.ReportFragment { *; }
+-keep class androidx.lifecycle.ReportFragment$* { *; }
+-keep class androidx.lifecycle.LifecycleRegistry { *; }
+-keep class androidx.lifecycle.LifecycleRegistry$* { *; }
 -keepclassmembers class * implements androidx.lifecycle.LifecycleObserver {
     <methods>;
 }
 -keepclassmembers class * extends androidx.lifecycle.ViewModel {
     <init>(...);
 }
--keepclassmembers class androidx.lifecycle.ReportFragment { *; }
--keepclassmembers class androidx.lifecycle.ReportFragment$ActivityInitializationListener { *; }
--keepclassmembers class androidx.lifecycle.ProcessLifecycleOwner { *; }
+-keepclassmembers class * implements androidx.lifecycle.LifecycleOwner {
+    androidx.lifecycle.Lifecycle getLifecycle();
+}
+
+# ── AndroidX AppCompat & Activity ────────────────────────────────────────
+-keep class androidx.appcompat.** { *; }
+-keep interface androidx.appcompat.** { *; }
+-keep class androidx.activity.** { *; }
+-keep interface androidx.activity.** { *; }
+
+# ── AndroidX Core ─────────────────────────────────────────────────────────
+-keep class androidx.core.** { *; }
+-keep interface androidx.core.** { *; }
 
 # ── AndroidX Biometric — KRİTİK ──────────────────────────────────────────
 -keep class androidx.biometric.** { *; }
@@ -52,15 +77,12 @@
 -keepclassmembers class * extends androidx.room.RoomDatabase { *; }
 -dontwarn androidx.room.paging.**
 
-# ── WebView JavaScript Arayüzleri ─────────────────────────────────────────
-# @JavascriptInterface ile işaretlenen tüm metotlar korunmalı,
-# aksi halde JS köprüsü runtime'da çöker.
+# ── WebView JavaScript Arayüzleri — KRİTİK ───────────────────────────────
+# @JavascriptInterface ile işaretlenen tüm metotlar korunmalı
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
--keepclassmembers class com.codeioPRO.app.ChatFragment {
-    @android.webkit.JavascriptInterface <methods>;
-}
+-keepclassmembers class com.codeioPRO.app.ChatFragment { *; }
 -keepclassmembers class com.codeioPRO.app.ChatFragment$* { *; }
 -keepclassmembers class com.codeioPRO.app.SecretsFragment$SecretsBridge { *; }
 -keepclassmembers class com.codeioPRO.app.ShellFragment$TerminalBridge { *; }
@@ -111,11 +133,15 @@
     public static ** valueOf(java.lang.String);
 }
 
-# ── Kotlin (varsa) ────────────────────────────────────────────────────────
+# ── Kotlin (dolaylı bağımlılık) ───────────────────────────────────────────
 -dontwarn kotlin.**
 -dontnote kotlin.**
+-keep class kotlin.** { *; }
+-keep interface kotlin.** { *; }
+-keepclassmembers class **$WhenMappings { *; }
+-keepclassmembers class kotlin.Metadata { *; }
 
-# ── OkHttp / Retrofit (dolaylı bağımlılık olabilir) ──────────────────────
+# ── OkHttp / Retrofit ────────────────────────────────────────────────────
 -dontwarn okhttp3.**
 -dontwarn retrofit2.**
 -dontwarn okio.**

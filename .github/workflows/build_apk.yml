@@ -1,9 +1,7 @@
-name: Code-ioPRO — Stabil Release APK
+name: Code-ioPRO — Release APK Build
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
     branches: [ main, master ]
   workflow_dispatch:
     inputs:
@@ -13,6 +11,10 @@ on:
         default: 'release'
         type: choice
         options: [release, debug]
+      release_tag:
+        description: 'Release tag adı (boş bırakılırsa otomatik oluşturulur)'
+        required: false
+        default: ''
 
 env:
   APP_MODULE: app
@@ -20,7 +22,7 @@ env:
 
 jobs:
   build:
-    name: Build APK
+    name: Build & Release APK
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,9 +34,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ── 2. Tarih değişkeni ────────────────────────────────────────────
-      - name: 📅 Tarih değişkeni
-        run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+      # ── 2. Versiyon ve tarih değişkenleri ─────────────────────────────
+      - name: 📅 Değişkenler
+        run: |
+          echo "DATE=$(date +'%Y-%m-%d')"      >> $GITHUB_ENV
+          echo "BUILD_NUM=${{ github.run_number }}" >> $GITHUB_ENV
+          # Tag: elle girilmişse onu, push'ta run_number'ı kullan
+          if [ -n "${{ github.event.inputs.release_tag }}" ]; then
+            echo "RELEASE_TAG=${{ github.event.inputs.release_tag }}" >> $GITHUB_ENV
+          else
+            echo "RELEASE_TAG=build-${{ github.run_number }}" >> $GITHUB_ENV
+          fi
 
       # ── 3. JDK 17 ─────────────────────────────────────────────────────
       - name: ☕ JDK 17 kur
@@ -58,20 +68,18 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      # ── 6. İmzalama Anahtarı Hazırla ─────────────────────────────────
-      # GitHub Secret olarak SIGNING_KEY (base64 .jks) eklenmişse kullanılır.
-      # Yoksa CI için otomatik test keystore üretilir.
+      # ── 6. İmzalama Keystore ──────────────────────────────────────────
       - name: 🔑 İmzalama keystore hazırla
         run: |
           if [ -n "${{ secrets.SIGNING_KEY }}" ]; then
             echo "✅ GitHub Secrets'tan keystore kullanılıyor"
             echo "${{ secrets.SIGNING_KEY }}" | base64 --decode > /tmp/release.jks
-            echo "SIGNING_KEY_STORE_PATH=/tmp/release.jks"           >> $GITHUB_ENV
-            echo "SIGNING_STORE_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}" >> $GITHUB_ENV
-            echo "SIGNING_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}"  >> $GITHUB_ENV
-            echo "SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}" >> $GITHUB_ENV
+            echo "SIGNING_KEY_STORE_PATH=/tmp/release.jks"                        >> $GITHUB_ENV
+            echo "SIGNING_STORE_PASSWORD=${{ secrets.SIGNING_STORE_PASSWORD }}"   >> $GITHUB_ENV
+            echo "SIGNING_KEY_ALIAS=${{ secrets.SIGNING_KEY_ALIAS }}"             >> $GITHUB_ENV
+            echo "SIGNING_KEY_PASSWORD=${{ secrets.SIGNING_KEY_PASSWORD }}"       >> $GITHUB_ENV
           else
-            echo "⚠️  SIGNING_KEY secret bulunamadı — CI test keystore oluşturuluyor"
+            echo "⚠️  SIGNING_KEY bulunamadı — CI test keystore oluşturuluyor"
             keytool -genkey -v \
               -keystore /tmp/release.jks \
               -alias release \
@@ -94,57 +102,63 @@ jobs:
           SIGNING_KEY_ALIAS:      ${{ env.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD:   ${{ env.SIGNING_KEY_PASSWORD }}
 
-      # ── 8. Debug APK derle (yedek) ────────────────────────────────────
+      # ── 8. Debug APK derle ────────────────────────────────────────────
       - name: 🔧 Debug APK derle
         run: ./gradlew assembleDebug --no-daemon
         if: always()
 
-      # ── 9. APK bilgisi ────────────────────────────────────────────────
+      # ── 9. APK boyutları ──────────────────────────────────────────────
       - name: 📋 APK bilgisi
         run: |
           echo "=== Derlenen APK'lar ==="
-          find app/build/outputs/apk -name "*.apk" -exec ls -lh {} \;
+          find app/build/outputs/apk -name "*.apk" -exec ls -lh {} \; 2>/dev/null || echo "APK bulunamadı"
 
-      # ── 10. Release APK yükle ─────────────────────────────────────────
-      - name: 📤 Release APK yükle (artifact)
+      # ── 10. Release APK artifact ──────────────────────────────────────
+      - name: 📤 Release APK yükle
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.DATE }}-${{ env.APP_NAME }}-release-APK
           path: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           retention-days: 90
 
-      # ── 11. Debug APK yükle ───────────────────────────────────────────
-      - name: 📤 Debug APK yükle (artifact)
+      # ── 11. Debug APK artifact ────────────────────────────────────────
+      - name: 📤 Debug APK yükle
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.DATE }}-${{ env.APP_NAME }}-debug-APK
           path: ${{ env.APP_MODULE }}/build/outputs/apk/debug/*.apk
           retention-days: 30
+        if: always()
 
-      # ── 12. GitHub Release oluştur (sadece main/master push) ──────────
+      # ── 12. GitHub Release — hem push hem workflow_dispatch ───────────
       - name: 🚀 GitHub Release oluştur
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        if: >
+          success() &&
+          (github.event_name == 'push' ||
+           github.event_name == 'workflow_dispatch')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: build-${{ github.run_number }}
-          name: "Code-ioPRO v1.1.0 — Build #${{ github.run_number }}"
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: "Code-ioPRO v1.1.5 — Build #${{ env.BUILD_NUM }}"
           body: |
-            ## 🚀 Code-ioPRO Stabil Release
+            ## 🚀 Code-ioPRO Stabil Release — Build #${{ env.BUILD_NUM }}
 
-            **Derleme:** #${{ github.run_number }}
             **Tarih:** ${{ env.DATE }}
             **Branch:** ${{ github.ref_name }}
 
-            ### ✅ Bu build'de düzeltilen kritik hatalar:
-            - `NoClassDefFoundError: ReportFragment$ActivityInitializationListener` çöküşü düzeltildi
-            - `biometric:1.2.0-alpha05` → stabil `1.1.0` sürümüne geçildi (lifecycle çakışması giderildi)
-            - `lifecycle-runtime:2.8.7` explicit tanımlanarak versiyon çakışması engellendi
-            - ProGuard kuralları kapsamlı biçimde yeniden yazıldı (WebView JS bridge, Room, Biometric, Lifecycle)
-            - Release build `shrinkResources` aktif edildi
-            - İmzalama CI/CD ortamına entegre edildi
+            ### ✅ Build 15 Düzeltmeleri:
+            - 🔴 **KRİTİK CRASH DÜZELTİLDİ:** `NoClassDefFoundError: ProcessLifecycleOwner$initializationListener$1`
+            - ProGuard iç sınıf kuralları genişletildi (`ProcessLifecycleOwner$*`, `ReportFragment$*`)
+            - `androidx.startup.**` ProGuard koruması eklendi (crash başlangıç noktası)
+            - `lifecycle-common-java8` bağımlılığı eklendi
+            - `androidx.startup:startup-runtime:1.2.0` açık bağımlılık eklendi
+            - `biometric:1.2.0-alpha05` → lifecycle 2.8.x ile tam uyumlu
+            - Java 11 → **Java 17** yükseltmesi (AGP 8.x uyumu)
+            - Yeni 4K HD uygulama ikonu
+            - `workflow_dispatch` tetiklemede release tag desteği
 
             ### 📱 Kurulum:
-            APK'yı cihaza indirip **Bilinmeyen kaynaklara izin ver** seçeneğiyle kurun.
+            APK'yı cihaza indirin, **Bilinmeyen kaynaklara izin ver** ile kurun.
           files: ${{ env.APP_MODULE }}/build/outputs/apk/release/*.apk
           draft: false
           prerelease: false

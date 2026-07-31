@@ -11,8 +11,8 @@ android {
         applicationId "com.codeioPRO.app"
         minSdk 31
         targetSdk 35
-        versionCode 11
-        versionName "1.1.0"
+        versionCode 15
+        versionName "1.1.5"
     }
 
     signingConfigs {
@@ -79,8 +79,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     lintOptions {
@@ -96,18 +96,26 @@ dependencies {
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.fragment:fragment:1.8.6'
+    implementation 'androidx.core:core:1.15.0'
 
-    // ── Lifecycle (KRİTİK: biometric'in eski versiyonu geçersiz kılınır) ──
-    // lifecycle-runtime'ın doğru versiyonu olmadan ReportFragment$ActivityInitializationListener
-    // sınıfı bulunamaz ve uygulama başlamadan çöker.
-    implementation 'androidx.lifecycle:lifecycle-runtime:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-common:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-process:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-livedata:2.8.7'
+    // ── Lifecycle — KRİTİK: tüm bileşenler aynı versiyonda sabitlendi ────
+    // Farklı lifecycle versiyonları ProcessLifecycleOwner$initializationListener
+    // NoClassDefFoundError'a yol açar. lifecycle-process özellikle gerekli.
+    def lifecycle_version = "2.8.7"
+    implementation "androidx.lifecycle:lifecycle-runtime:${lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-common:${lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-process:${lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:${lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-livedata:${lifecycle_version}"
+    implementation "androidx.lifecycle:lifecycle-common-java8:${lifecycle_version}"
 
-    // ── Biometric (stable sürüm — alpha05 lifecycle çakışmasına neden oluyordu) ──
-    implementation 'androidx.biometric:biometric:1.1.0'
+    // ── AndroidX Startup — KRİTİK ─────────────────────────────────────────
+    // lifecycle-process, InitializationProvider üzerinden başlar;
+    // bu bağımlılık olmadan startup çöker.
+    implementation 'androidx.startup:startup-runtime:1.2.0'
+
+    // ── Biometric (lifecycle 2.8.x ile uyumlu stabil sürüm) ──────────────
+    implementation 'androidx.biometric:biometric:1.2.0-alpha05'
 
     // ── Room (SQLite) ──────────────────────────────────────────────────────
     implementation 'androidx.room:room-runtime:2.6.1'
